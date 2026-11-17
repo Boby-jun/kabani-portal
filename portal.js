@@ -69,7 +69,7 @@ function portalStart(role) {
     DB.email = (s.user && s.user.email) || '';
     return sb.rpc('is_admin');
   }).then(function (r) {
-    DB.admin = r.data === true;
+    DB.admin = r.data === true; setFlag();
     if (role === 'admin' && !DB.admin) { location.replace('trip.html'); return never(); }
     return Promise.all([sb.from('trips').select('id,data'), sb.from('trip_progress').select('trip_id,state')]);
   }).then(function (rs) {
@@ -96,10 +96,23 @@ function portalStart(role) {
 /* ---- sign-in memory: you stay signed in while you use the portal, and for 15 minutes after you last used it ---- */
 var IDLE_MS = 15 * 60 * 1000, ACT_KEY = 'kabani_portal_last_active';
 function lastActive() { try { return +localStorage.getItem(ACT_KEY) || 0; } catch (e) { return 0; } }
-function markActive() { try { localStorage.setItem(ACT_KEY, String(Date.now())); } catch (e) {} }
+/* A tiny flag cookie (no personal data: just "client" or "admin") lets kabanisafaris.com show "My trip" instead of "Client Login" while you are signed in. It lasts as long as the idle window and is removed on sign out. */
+function setFlag() {
+  try {
+    var h = location.hostname, dom = /(^|\.)kabanisafaris\.com$/.test(h) ? '; Domain=.kabanisafaris.com' : '';
+    document.cookie = 'kb_portal=' + (DB.admin ? 'admin' : 'client') + '; Max-Age=' + (IDLE_MS / 1000) + '; Path=/' + dom + '; SameSite=Lax' + (location.protocol === 'https:' ? '; Secure' : '');
+  } catch (e) {}
+}
+function clearFlag() {
+  try {
+    var h = location.hostname, dom = /(^|\.)kabanisafaris\.com$/.test(h) ? '; Domain=.kabanisafaris.com' : '';
+    document.cookie = 'kb_portal=; Max-Age=0; Path=/' + dom + '; SameSite=Lax';
+  } catch (e) {}
+}
+function markActive() { try { localStorage.setItem(ACT_KEY, String(Date.now())); } catch (e) {} if (DB.email) setFlag(); }
 function idleExpired() { var t = lastActive(); return !t || (Date.now() - t) > IDLE_MS; }
 function expireSession() {
-  return sb.auth.signOut().catch(function () {}).then(function () { try { localStorage.removeItem(ACT_KEY); } catch (e) {} location.replace('index.html?expired=1'); });
+  return sb.auth.signOut().catch(function () {}).then(function () { try { localStorage.removeItem(ACT_KEY); } catch (e) {} clearFlag(); location.replace('index.html?expired=1'); });
 }
 function watchActivity() {
   var last = 0;
@@ -110,7 +123,7 @@ function watchActivity() {
   });
   setInterval(function () { if (idleExpired()) expireSession(); }, 30000);
 }
-function signOut() { return sb.auth.signOut().catch(function () {}).then(function () { try { localStorage.removeItem(ACT_KEY); } catch (e) {} location.href = 'index.html'; }); }
+function signOut() { return sb.auth.signOut().catch(function () {}).then(function () { try { localStorage.removeItem(ACT_KEY); } catch (e) {} clearFlag(); location.href = 'index.html'; }); }
 function bindSignOut() {
   [].forEach.call(document.querySelectorAll('[data-signout]'), function (a) {
     a.addEventListener('click', function (e) { e.preventDefault(); signOut(); });

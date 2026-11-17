@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex, nofollow">
   <title>Client Login — Kabani Safaris</title>
   <link rel="stylesheet" href="fonts/fonts.css">
-  <link rel="stylesheet" href="portal.css?v=20261117g">
+  <link rel="stylesheet" href="portal.css?v=20261117i">
 </head>
 <body class="login-body">
   <div class="login-art">
@@ -25,7 +25,7 @@
       <form id="email-form" novalidate>
         <div class="field">
           <label for="email">Email address</label>
-          <input id="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="name@example.com" required>
+          <input id="email" type="email" inputmode="email" enterkeyhint="go" autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="name@example.com" required>
         </div>
         <button class="btn green" type="submit" id="send" style="width:100%">Continue with your email</button>
         <p class="msg" id="email-msg" role="status" aria-live="polite"></p>
@@ -34,7 +34,7 @@
       <form id="code-form" novalidate hidden>
         <div class="field">
           <label for="code">One-time code</label>
-          <input id="code" class="otp" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="8" placeholder="123456" required>
+          <input id="code" class="otp" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="9" enterkeyhint="go" placeholder="12345678" required>
         </div>
         <button class="btn green" type="submit" id="verify" style="width:100%">Sign in</button>
         <p class="msg" id="code-msg" role="status" aria-live="polite"></p>
@@ -48,7 +48,7 @@
 
   <script src="vendor/supabase.js"></script>
   <script src="config.js?v=20261117a"></script>
-  <script src="portal.js?v=20261117c"></script>
+  <script src="portal.js?v=20261117j"></script>
   <script>
     // background video: small file on phones, none if the visitor prefers less motion or saves data
     (function () {
@@ -62,7 +62,7 @@
 
     (function () {
       var $ = function (id) { return document.getElementById(id); };
-      var email = '', cooldown = 0, timer = null;
+      var email = '', cooldown = 0, timer = null, CODE_LEN = 8; /* the length set in Supabase (Email OTP length) */
 
       function route() {
         $('lede').textContent = 'Signing you in…';
@@ -111,12 +111,22 @@
       $('code-form').addEventListener('submit', function (e) {
         e.preventDefault();
         var token = $('code').value.replace(/\s/g, '');
-        if (token.length < 6) { $('code-msg').textContent = 'The code has 6 digits.'; $('code').focus(); return; }
+        if (token.length < CODE_LEN) { $('code-msg').textContent = 'The code has ' + CODE_LEN + ' digits.'; $('code').focus(); return; }
         busy($('verify'), true, 'Checking…'); $('code-msg').textContent = '';
         sb.auth.verifyOtp({ email: email, token: token, type: 'email' }).then(function (r) {
           if (r.error) { busy($('verify'), false, 'Sign in'); $('code-msg').textContent = 'That code did not work. Check it, or send a new one.'; $('code').select(); return; }
           markActive(); route();
         });
+      });
+      /* Enter does what the green button does, on both steps */
+      $('email').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); if (!$('send').disabled) $('email-form').requestSubmit(); } });
+      $('code').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); if (!$('verify').disabled) $('code-form').requestSubmit(); } });
+      /* only digits; signs in as soon as the last digit is in (phones' number pads have no Enter key) */
+      $('code').addEventListener('input', function () {
+        var d = this.value.replace(/\D/g, '').slice(0, CODE_LEN);
+        if (this.value !== d) this.value = d;
+        $('code-msg').textContent = '';
+        if (d.length === CODE_LEN && !$('verify').disabled) $('code-form').requestSubmit();
       });
       $('resend').addEventListener('click', function () {
         $('code-msg').textContent = ''; sendCode().then(function () { $('code-msg').textContent = 'A new code is on its way.'; startCooldown(); });
