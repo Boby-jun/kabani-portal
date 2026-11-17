@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin — Kabani Safaris</title>
+  <link rel="stylesheet" href="fonts/fonts.css">
+  <link rel="stylesheet" href="portal.css?v=20261117a">
+</head>
+<body>
+  <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Menu</button>
+  <div class="sidebar-backdrop"></div>
+  <aside class="sidebar" id="site-menu">
+    <button class="sidebar-close" type="button" aria-label="Close menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button>
+    <a class="sidebar-logo" href="#trips">Kabani <span>Safaris</span></a>
+    <div class="sidebar-sub">Admin</div>
+    <nav class="sidebar-nav" id="nav">
+      <a href="#trips">All trips</a>
+      <a href="#client" data-ed hidden>Client and trip</a>
+      <a href="#days" data-ed hidden>Itinerary days</a>
+      <a href="#money" data-ed hidden>Price and payments</a>
+      <a href="#bookings" data-ed hidden>Bookings</a>
+      <a href="#progress" data-ed hidden>Client checklist</a>
+      <a href="#output" data-ed hidden>Languages and invite</a>
+    </nav>
+    <a class="sidebar-web" href="https://kabanisafaris.com" data-icon="arrow-left">Back to website</a>
+    <div class="sidebar-foot">Signed in as admin<br><span id="who"></span><br><a href="index.html" data-signout>Sign out</a></div>
+  </aside>
+
+  <main>
+    <div class="wrap">
+
+      <section id="trips">
+        <div class="sec-head"><h1 style="font-size:clamp(34px,4.4vw,54px)">Trips</h1><p class="lede">Every client trip in one place. Filter the list, open a trip to edit it, and the client sees the change straight away.</p></div>
+        <div class="card">
+          <div class="filters" role="search" aria-label="Filter trips">
+            <div class="field"><label for="q-client">Client</label><input id="q-client" type="search" placeholder="Name" autocomplete="off"></div>
+            <div class="field"><label for="q-trip">Trip</label><input id="q-trip" type="search" placeholder="Title" autocomplete="off"></div>
+            <div class="field"><label for="q-dep">Departure</label>
+              <select id="q-dep"><option value="any">Any date</option><option value="30">Next 30 days</option><option value="90">Next 3 months</option><option value="180">Next 6 months</option><option value="past">Already departed</option></select></div>
+            <div class="field"><label for="q-ready">Readiness</label>
+              <select id="q-ready"><option value="any">Any</option><option value="attn">Needs attention</option><option value="lt50">Under 50%</option><option value="mid">50% to 99%</option><option value="full">Ready (100%)</option></select></div>
+          </div>
+          <div class="filter-foot"><span class="todo-count" id="f-count" aria-live="polite"></span><span class="legend" aria-label="Readiness colours"><span class="lg t-pay" data-icon="wallet">Payments</span><span class="lg t-book" data-icon="bed">Bookings</span><span class="lg t-todo" data-icon="list">Checklist</span></span><button class="btn ghost small" type="button" id="f-clear">Clear filters</button></div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th>Client</th><th>Trip</th><th>Departure</th><th>Readiness</th><th><span class="sr">Actions</span></th></tr></thead>
+              <tbody id="trip-rows"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="row" style="margin-top:20px"><button class="btn green" type="button" id="new-trip" data-icon="plus">New trip</button></div>
+      </section>
+
+      <div id="editor" hidden>
+
+      <section id="client">
+        <div class="sec-head"><div class="row" style="justify-content:space-between;align-items:flex-start"><h2>Client and trip</h2><button class="btn ghost small" type="button" id="back" data-icon="arrow-left">Back to all trips</button></div><p class="lede" id="editing"></p></div>
+        <div class="card">
+          <div class="form-grid">
+            <div class="field"><label for="f-client">Client name</label><input id="f-client"></div>
+            <div class="field"><label for="f-first">First name (for the greeting)</label><input id="f-first"></div>
+            <div class="field"><label for="f-email">Sign-in email</label><input id="f-email" type="email" inputmode="email"></div>
+            <div class="field"><label for="f-phone">Sign-in phone (optional)</label><input id="f-phone" type="tel" inputmode="tel" placeholder="+41 79 000 00 00"></div>
+            <div class="field"><label for="f-title">Trip title</label><input id="f-title"></div>
+            <div class="field"><label for="f-start">Departure (first day)</label><input id="f-start" type="date"></div>
+          </div>
+          <div class="field"><label for="f-sub">One-line summary</label><input id="f-sub"></div>
+          <p class="hint" style="margin-top:0">Clients can sign in with Google, Apple or phone. They only see the trip whose email or phone number matches the account they sign in with.</p>
+        </div>
+      </section>
+
+      <section id="days">
+        <div class="sec-head"><h2>Itinerary days</h2></div>
+        <div class="card"><div id="day-list"></div><button class="btn ghost small" type="button" id="add-day" data-icon="plus" style="margin-top:16px">Add a day</button></div>
+      </section>
+
+      <section id="money">
+        <div class="sec-head"><h2>Price and payments</h2><p class="lede">A total price, a down payment, optional instalments, and a final balance. The final balance fills itself in.</p></div>
+        <div class="card">
+          <div class="form-grid three">
+            <div class="field"><label for="f-price">Total price (CHF)</label><input id="f-price" type="number" inputmode="numeric" min="0"></div>
+            <div class="field"><label for="f-finaldays">Full payment due, days before departure</label><input id="f-finaldays" type="number" inputmode="numeric" min="0"></div>
+            <div class="field"><label for="f-warndays">Signal starts, days before departure</label><input id="f-warndays" type="number" inputmode="numeric" min="0"></div>
+          </div>
+          <p class="hint" id="pay-rule" style="margin-top:0"></p>
+          <div id="pay-list"></div>
+          <button class="btn ghost small" type="button" id="add-pay" data-icon="plus" style="margin-top:16px">Add an instalment</button>
+          <p class="hint" id="pay-sum"></p>
+          <p class="hint">When you tick "Paid" and save, the client gets a receipt email automatically. That email is not built yet: the prototype only tells you who it would go to.</p>
+        </div>
+        <div class="two">
+          <div class="card"><h3>Included</h3><div class="lines" id="inc-lines"></div><button class="btn ghost small add-line" type="button" data-for="included" data-icon="plus">Add a line</button></div>
+          <div class="card"><h3>Not included</h3><div class="lines" id="exc-lines"></div><button class="btn ghost small add-line" type="button" data-for="excluded" data-icon="plus">Add a line</button></div>
+        </div>
+      </section>
+
+      <section id="bookings">
+        <div class="sec-head"><h2>Bookings</h2><p class="lede">One line per booking. Tick what is confirmed: the client sees it in their tracker and earns the milestone stamps.</p></div>
+        <div class="card"><div id="book-list"></div><button class="btn ghost small" type="button" id="add-book" data-icon="plus" style="margin-top:16px">Add a booking</button></div>
+      </section>
+
+      <section id="progress">
+        <div class="sec-head"><h2>Client checklist</h2><p class="lede">The "Before you travel" list. Give an item a deadline and the client sees an orange signal as it gets close and a red one once it is late. The first column shows what the client has ticked, live.</p></div>
+        <div class="card">
+          <div class="todo-head"><h3 id="cl-title">Before you travel</h3><span class="todo-count" id="cl-count"></span></div>
+          <div class="bar gold" role="progressbar" aria-label="Client checklist progress"><i id="cl-bar"></i></div>
+          <p class="hint" id="cl-note" style="margin-top:12px"></p>
+          <div id="cl-groups"></div>
+        </div>
+      </section>
+
+      <section id="output">
+        <div class="sec-head"><h2>Languages and invite</h2></div>
+        <div class="two" style="margin-top:0">
+          <div class="card">
+            <h3>Output languages</h3>
+            <p class="hint" style="margin-top:6px">English is always included. Add the languages your client asked for.</p>
+            <label class="check"><input type="checkbox" checked disabled> English (main version)</label>
+            <label class="check"><input type="checkbox" id="l-fr"> French</label>
+            <label class="check"><input type="checkbox" id="l-es"> Spanish</label>
+            <label class="check"><input type="checkbox" id="l-other"> Other language on request</label>
+            <button class="btn ghost small" type="button" id="gen" data-icon="globe" style="margin-top:12px">Generate translations</button>
+            <p class="hint">Not built yet. Translations will be drafted for you to read before the client sees them.</p>
+          </div>
+          <div class="card">
+            <h3>Invite the client</h3>
+            <p class="hint" style="margin-top:6px">Nothing to set up. Once this trip is saved with the client's email address, they open the portal, enter that address and receive a one-time code. Nobody can sign in with an email address that has no trip.</p>
+            <button class="btn small" type="button" id="invite" data-icon="send" style="margin-top:12px">Copy portal link</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="savebar">
+        <span id="dirty" class="todo-count">No unsaved changes</span>
+        <span class="row"><button class="btn ghost small" type="button" id="close">Close editor</button><button class="btn ghost small" type="button" id="delete">Delete trip</button><a class="btn ghost small" id="see" href="trip.html" data-icon="eye">See as client</a><button class="btn green small" type="button" id="save" data-icon="check">Save changes</button></span>
+      </div>
+
+      </div>
+    </div>
+  </main>
+
+  <dialog id="nt" class="dlg" aria-labelledby="nt-h">
+    <form id="nt-form" method="dialog">
+      <h3 id="nt-h">New trip</h3>
+      <p class="hint" style="margin-top:4px">You can change everything afterwards. The client email decides who can open this trip.</p>
+      <div class="field"><label for="nt-name">Client name</label><input id="nt-name" required autocomplete="off" placeholder="Anna &amp; Marc Keller"></div>
+      <div class="field"><label for="nt-email">Client email</label><input id="nt-email" type="email" required autocomplete="off" inputmode="email" autocapitalize="none" placeholder="name@example.com"></div>
+      <div class="field"><label for="nt-title">Trip title</label><input id="nt-title" required autocomplete="off" placeholder="Kenya Highlights"></div>
+      <div class="field"><label for="nt-start">Departure date</label><input id="nt-start" type="date"></div>
+      <div class="row" style="justify-content:flex-end;margin-top:16px"><button class="btn ghost small" type="button" id="nt-cancel">Cancel</button><button class="btn green small" type="submit">Create trip</button></div>
+    </form>
+  </dialog>
+
+  <script src="vendor/supabase.js"></script>
+  <script src="config.js?v=20261117a"></script>
+  <script src="portal.js?v=20261117c"></script>
+  <script>
+  portalStart('admin').then(function () {
+    bindSignOut();
+    var $ = function (id) { return document.getElementById(id); };
+    $('who').textContent = DB.email;
+    var trip = newTrip({ clientName: '', email: '', title: '' }), editorOpen = false, dirty = false, lastCl = '', savedPaid = [];
+    var longDate = { day: 'numeric', month: 'long', year: 'numeric' }, shortDate = { day: 'numeric', month: 'short', year: 'numeric' };
+    function mark() { dirty = true; $('dirty').textContent = 'Unsaved changes'; renderTable(); }
+    function clean(a) { return a.map(function (s) { return String(s).trim(); }).filter(Boolean); }
+    function plural(n, w) { return n + ' ' + w + (n === 1 ? '' : 's'); }
+
+    /* ---------- trips list with filters ---------- */
+    function allRows() {
+      return tripIds().map(function (id) {
+        var t = (editorOpen && id === trip.id) ? trip : loadTripById(id), todo = loadTodoById(id);
+        var rd = readiness(t, todo); return { id: id, t: t, rd: rd, r: rd.total, al: alerts(t, todo), du: t.start ? daysUntil(t.start) : 9999 };
+      }).sort(function (a, b) { var pa = a.du < 0, pb = b.du < 0; return pa !== pb ? (pa ? 1 : -1) : (pa ? b.du - a.du : a.du - b.du); });
+    }
+    function passes(x) {
+      var qc = $('q-client').value.trim().toLowerCase(), qt = $('q-trip').value.trim().toLowerCase(), dep = $('q-dep').value, rd = $('q-ready').value;
+      if (qc && x.t.clientName.toLowerCase().indexOf(qc) < 0) return false;
+      if (qt && x.t.title.toLowerCase().indexOf(qt) < 0) return false;
+      if (dep === 'past' && x.du >= 0) return false;
+      if (dep !== 'any' && dep !== 'past' && (x.du < 0 || x.du > +dep)) return false;
+      if (rd === 'attn' && !x.al.length) return false;
+      if (rd === 'lt50' && x.r >= 50) return false;
+      if (rd === 'mid' && (x.r < 50 || x.r >= 100)) return false;
+      if (rd === 'full' && x.r < 100) return false;
+      return true;
+    }
+    function renderTable() {
+      var rows = allRows(), shown = rows.filter(passes);
+      $('trip-rows').innerHTML = shown.length ? shown.map(function (x) {
+        var t = x.t, open = editorOpen && x.id === trip.id;
+        var late = x.al.filter(function (a) { return a.s.level === 'late'; }).length, soon = x.al.length - late;
+        var when = x.du < 0 ? 'Departed' : x.du === 0 ? 'Today' : 'In ' + plural(x.du, 'day');
+        return '<tr' + (open ? ' class="is-open"' : '') + '><td><b style="font-weight:500">' + esc(t.clientName) + '</b></td><td>' + esc(t.title) + '</td>' +
+          '<td>' + (t.start ? fmt(parseISO(t.start), shortDate) : 'No date') + '<small class="sub">' + when + '</small></td>' +
+          '<td><div class="rd"><b class="rd-total" title="Overall readiness">' + x.r + '%</b>' + topicBars(x.rd, false) + '</div>' +
+          ((late || soon) ? '<div class="row" style="gap:6px;margin-top:6px">' + (late ? '<span class="chip late"><i class="dot"></i>' + late + ' late</span>' : '') + (soon ? '<span class="chip soon"><i class="dot"></i>' + soon + ' soon</span>' : '') + '</div>' : '') + '</td>' +
+          '<td><span class="row"><button type="button" class="btn small' + (open ? ' green' : ' ghost') + '" data-edit="' + x.id + '" aria-expanded="' + open + '">' + (open ? 'Close' : 'Edit') + '</button><a class="btn small ghost" href="trip.html?trip=' + x.id + '">View as client</a></span></td></tr>';
+      }).join('') : '<tr><td colspan="5" class="empty">No trips match these filters.</td></tr>';
+      $('f-count').textContent = shown.length === rows.length ? plural(rows.length, 'trip') : shown.length + ' of ' + plural(rows.length, 'trip');
+    }
+    ['q-client', 'q-trip'].forEach(function (id) { $(id).addEventListener('input', renderTable); });
+    ['q-dep', 'q-ready'].forEach(function (id) { $(id).addEventListener('change', renderTable); });
+    $('f-clear').addEventListener('click', function () { $('q-client').value = ''; $('q-trip').value = ''; $('q-dep').value = 'any'; $('q-ready').value = 'any'; renderTable(); });
+    $('trip-rows').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-edit]'); if (!b) return;
+      var id = b.getAttribute('data-edit');
+      if (editorOpen && id === trip.id) closeEditor(); else openTrip(id);
+    });
+
+    /* ---------- open and close the editor ---------- */
+    function setNav() {
+      [].forEach.call(document.querySelectorAll('#nav [data-ed]'), function (a) { a.hidden = !editorOpen; });
+      onScroll();
+    }
+    function openTrip(id) {
+      if (editorOpen && dirty && !confirm('You have unsaved changes on this trip. Discard them?')) return;
+      trip = loadTripById(id); dirty = false; lastCl = '';
+      editorOpen = true; $('editor').hidden = false;
+      fillFields(); renderDays(); renderPay(); renderLines(); renderBook(); renderChecklist(); renderLive();
+      $('dirty').textContent = 'No unsaved changes';
+      $('see').href = 'trip.html?trip=' + id; $('editing').textContent = 'You are editing ' + trip.clientName + ', ' + trip.title + '.' + (trip.start && trip.days.length ? ' The client can see this trip until ' + fmt(addDays(trip.start, trip.days.length - 1 + 90), longDate) + ' (3 months after the trip ends).' : '');
+      savedPaid = trip.payments.filter(function (p) { return p.paid; }).map(function (p) { return p.id; });
+      setNav(); renderTable(); autosizeAll(); requestAnimationFrame(autosizeAll);
+      try { history.replaceState(null, '', '?trip=' + id); } catch (e) {}
+      $('client').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    function closeEditor() {
+      if (dirty && !confirm('You have unsaved changes on this trip. Close without saving?')) return;
+      dirty = false; editorOpen = false; $('editor').hidden = true;
+      try { history.replaceState(null, '', location.pathname); } catch (e) {}
+      setNav(); renderTable(); $('trips').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    $('back').addEventListener('click', closeEditor);
+    $('close').addEventListener('click', closeEditor);
+
+    /* ---------- client and trip fields ---------- */
+    var map = { 'f-client': 'clientName', 'f-first': 'firstName', 'f-email': 'email', 'f-title': 'title', 'f-start': 'start', 'f-sub': 'subtitle' };
+    function fillFields() {
+      Object.keys(map).forEach(function (id) { $(id).value = trip[map[id]] || ''; });
+      $('f-phone').value = trip.phone || ''; $('f-price').value = trip.price;
+      $('f-finaldays').value = finalDays(trip); $('f-warndays').value = finalWarn(trip);
+    }
+    Object.keys(map).forEach(function (id) {
+      $(id).addEventListener('input', function () {
+        trip[map[id]] = this.value;
+        if (id === 'f-start') { syncFinal(); ruleHints(); renderLive(); }
+        mark();
+      });
+    });
+    $('f-phone').addEventListener('input', function () { trip.phone = this.value; mark(); });
+    $('f-price').addEventListener('input', function () { trip.price = +this.value || 0; syncFinal(); renderLive(); mark(); });
+    $('f-finaldays').addEventListener('input', function () { trip.finalDueDays = this.value === '' ? 14 : +this.value; syncFinal(); renderLive(); mark(); });
+    $('f-warndays').addEventListener('input', function () { trip.finalWarnDays = this.value === '' ? 20 : +this.value; syncFinal(); renderLive(); mark(); });
+
+    /* ---------- days ---------- */
+    function renderDays() {
+      $('day-list').innerHTML = trip.days.map(function (d, i) {
+        return '<div class="day-edit" data-i="' + i + '"><div class="day-edit-head"><b>Day ' + (i + 1) + '</b><button type="button" class="btn ghost small rm-day" aria-label="Remove day ' + (i + 1) + '">Remove</button></div>' +
+          '<div class="form-grid"><div class="field"><label>Title</label><input data-k="title" value="' + esc(d.title) + '"></div><div class="field"><label>Place</label><input data-k="place" value="' + esc(d.place) + '"></div></div>' +
+          '<div class="field"><label>Description</label><textarea data-k="desc" rows="4">' + esc(d.desc) + '</textarea></div>' +
+          '<div class="form-grid"><div class="field"><label>Where you stay</label><input data-k="stay" value="' + esc(d.stay) + '"></div><div class="field"><label>Meals (B / L / D)</label><input data-k="meals" value="' + esc(d.meals) + '"></div></div></div>';
+      }).join('');
+    }
+    $('day-list').addEventListener('input', function (e) {
+      var row = e.target.closest('.day-edit'); if (!row || !e.target.dataset.k) return;
+      trip.days[+row.dataset.i][e.target.dataset.k] = e.target.value; mark();
+    });
+    $('day-list').addEventListener('click', function (e) {
+      var b = e.target.closest('.rm-day'); if (!b) return;
+      if (trip.days.length < 2) { toast('A trip needs at least one day.'); return; }
+      trip.days.splice(+b.closest('.day-edit').dataset.i, 1); renderDays(); mark();
+    });
+    $('add-day').addEventListener('click', function () {
+      trip.days.push({ place: '', title: 'New day', desc: '', stay: '', meals: 'B / L / D' }); renderDays(); mark();
+      var last = $('day-list').lastElementChild; if (last) last.querySelector('input').focus();
+    });
+
+    /* ---------- payments: down payment, instalments, automatic final balance ---------- */
+    function dueText() { return trip.start ? fmt(addDays(trip.start, -finalDays(trip)), longDate) : 'the departure date once it is set'; }
+    function syncFinal() {
+      applyRules(trip);
+      var last = trip.payments[trip.payments.length - 1];
+      var a = $('pay-list').querySelector('[data-final-amount]'), d = $('pay-list').querySelector('[data-final-date]');
+      if (a) a.value = last.amount;
+      if (d) d.value = trip.start ? fmt(parseISO(last.date), shortDate) : 'Set the departure date first';
+      $('pay-rule').textContent = trip.start
+        ? 'The final balance is due ' + plural(finalDays(trip), 'day') + ' before departure, on ' + dueText() + '. The client sees an orange signal from ' + fmt(addDays(trip.start, -finalWarn(trip)), longDate) + ' and a red one after the due date if it is still unpaid.'
+        : 'Set the departure date to calculate the final payment date.';
+      paySum();
+    }
+    function paySum() {
+      var others = trip.payments.slice(0, -1).reduce(function (s, p) { return s + (+p.amount || 0); }, 0), last = trip.payments[trip.payments.length - 1];
+      $('pay-sum').textContent = others > trip.price
+        ? 'The down payment and instalments add up to ' + chf(others) + ', which is ' + chf(others - trip.price) + ' more than the total price of ' + chf(trip.price) + '.'
+        : 'Down payment and instalments: ' + chf(others) + '. Final balance: ' + chf(last.amount) + '. Total: ' + chf(trip.price) + '.';
+    }
+    function payRow(p, i, n) {
+      var first = i === 0, last = i === n - 1, role = last ? 'Final balance' : first ? 'Down payment' : 'Instalment ' + i, x = 'pay' + i;
+      var rm = (!first && !last) ? '<button type="button" class="btn ghost small rm-pay" aria-label="Remove ' + role + '">Remove</button>' : '';
+      var amount = last ? '<input id="' + x + 'a" data-final-amount readonly value="' + esc(p.amount) + '">' : '<input id="' + x + 'a" data-k="amount" type="number" inputmode="numeric" min="0" value="' + esc(p.amount) + '">';
+      var date = last ? '<input id="' + x + 'd" data-final-date readonly value="">' : '<input id="' + x + 'd" data-k="date" type="date" value="' + esc(p.date) + '">';
+      return '<div class="pay-row' + (last ? ' auto' : '') + '" data-i="' + i + '"><div class="pay-head"><b>' + role + '</b>' + (last ? '<span class="chip">' + icon('lock') + 'Fills itself in</span>' : '') + rm + '</div>' +
+        '<div class="field"><label for="' + x + 'a">Amount (CHF)</label>' + amount + '</div>' +
+        '<div class="field"><label for="' + x + 'd">' + (last ? 'Due date' : 'Date') + '</label>' + date + '</div>' +
+        '<div class="field"><label for="' + x + 'n">Note the client sees</label><input id="' + x + 'n" data-k="note" value="' + esc(p.note) + '"></div>' +
+        '<div><label class="check"><input type="checkbox" data-k="paid"' + (p.paid ? ' checked' : '') + '> Paid</label></div></div>';
+    }
+    function renderPay() {
+      applyRules(trip);
+      $('pay-list').innerHTML = trip.payments.map(function (p, i, a) { return payRow(p, i, a.length); }).join('');
+      syncFinal();
+    }
+    $('pay-list').addEventListener('input', function (e) {
+      var row = e.target.closest('.pay-row'); if (!row || !e.target.dataset.k) return;
+      var k = e.target.dataset.k, p = trip.payments[+row.dataset.i];
+      p[k] = k === 'paid' ? e.target.checked : (k === 'amount' ? +e.target.value || 0 : e.target.value);
+      if (k === 'paid' && e.target.checked) toast('Receipt email to ' + (trip.email || 'the client') + ' goes out when you save.');
+      syncFinal(); renderLive(); mark();
+    });
+    $('pay-list').addEventListener('click', function (e) {
+      var b = e.target.closest('.rm-pay'); if (!b) return;
+      trip.payments.splice(+b.closest('.pay-row').dataset.i, 1); renderPay(); renderLive(); mark();
+    });
+    $('add-pay').addEventListener('click', function () {
+      var at = trip.payments.length - 1;
+      trip.payments.splice(at, 0, { id: Date.now(), amount: 0, date: trip.start ? toISO(addDays(trip.start, -30)) : '', note: 'Instalment', paid: false });
+      renderPay(); mark();
+      var row = $('pay-list').children[at]; if (row) row.querySelector('input').focus();
+    });
+
+    /* ---------- included / not included, one line each ---------- */
+    var lineBoxes = { included: 'inc-lines', excluded: 'exc-lines' };
+    function renderLines() {
+      Object.keys(lineBoxes).forEach(function (k) {
+        var arr = trip[k]; if (!arr.length) arr.push('');
+        $(lineBoxes[k]).innerHTML = arr.map(function (s, i) {
+          return '<div class="line" data-k="' + k + '" data-i="' + i + '"><span class="ln">' + (i + 1) + '</span><textarea rows="1" aria-label="' + (k === 'included' ? 'Included' : 'Not included') + ' line ' + (i + 1) + '" enterkeyhint="next">' + esc(s) + '</textarea><button type="button" class="icon-btn rm-line" aria-label="Remove line ' + (i + 1) + '">' + icon('x') + '</button></div>';
+        }).join('');
+      });
+      autosizeAll();
+    }
+    function autosize(t) { t.style.height = 'auto'; t.style.height = (t.scrollHeight + 4) + 'px'; }
+    function autosizeAll() { [].forEach.call(document.querySelectorAll('.line textarea'), autosize); }
+    function focusLine(k, i) { var r = $(lineBoxes[k]).children[i]; if (r) { var t = r.querySelector('textarea'); t.focus(); t.setSelectionRange(t.value.length, t.value.length); } }
+    Object.keys(lineBoxes).forEach(function (k) {
+      var box = $(lineBoxes[k]);
+      box.addEventListener('input', function (e) {
+        var row = e.target.closest('.line'); if (!row) return;
+        trip[k][+row.dataset.i] = e.target.value.replace(/\n/g, ' '); autosize(e.target); mark();
+      });
+      box.addEventListener('keydown', function (e) {
+        var row = e.target.closest('.line'); if (!row) return; var i = +row.dataset.i;
+        if (e.key === 'Enter') { e.preventDefault(); trip[k].splice(i + 1, 0, ''); renderLines(); focusLine(k, i + 1); mark(); }
+        else if (e.key === 'Backspace' && e.target.value === '' && trip[k].length > 1) { e.preventDefault(); trip[k].splice(i, 1); renderLines(); focusLine(k, Math.max(0, i - 1)); mark(); }
+      });
+      box.addEventListener('click', function (e) {
+        var b = e.target.closest('.rm-line'); if (!b) return; var i = +b.closest('.line').dataset.i;
+        trip[k].splice(i, 1); renderLines(); mark();
+      });
+    });
+    [].forEach.call(document.querySelectorAll('.add-line'), function (b) {
+      b.addEventListener('click', function () { var k = b.dataset.for; trip[k].push(''); renderLines(); focusLine(k, trip[k].length - 1); mark(); });
+    });
+    window.addEventListener('resize', autosizeAll);
+
+    /* ---------- bookings ---------- */
+    function renderBook() {
+      $('book-list').innerHTML = trip.bookings.map(function (b, i) {
+        var x = 'bk' + i;
+        return '<div class="bk" data-i="' + i + '"><div class="field"><label for="' + x + 'n">Booking</label><input id="' + x + 'n" data-k="name" value="' + esc(b.name) + '"></div>' +
+          '<div class="field"><label for="' + x + 'd">Details shown to client</label><input id="' + x + 'd" data-k="detail" value="' + esc(b.detail) + '"></div>' +
+          '<div class="field"><label for="' + x + 'k">Type</label><select id="' + x + 'k" data-k="kind"><option value="stay"' + (b.kind === 'stay' ? ' selected' : '') + '>Stay</option><option value="other"' + (b.kind !== 'stay' ? ' selected' : '') + '>Other</option></select></div>' +
+          '<label class="check"><input type="checkbox" data-k="status"' + (b.status === 'confirmed' ? ' checked' : '') + '> Confirmed</label>' +
+          '<button type="button" class="icon-btn rm-book" aria-label="Remove ' + esc(b.name) + '">' + icon('x') + '</button></div>';
+      }).join('');
+    }
+    $('book-list').addEventListener('input', function (e) {
+      var row = e.target.closest('.bk'); if (!row || !e.target.dataset.k) return; var k = e.target.dataset.k, b = trip.bookings[+row.dataset.i];
+      b[k] = k === 'status' ? (e.target.checked ? 'confirmed' : 'pending') : e.target.value; mark();
+    });
+    $('book-list').addEventListener('click', function (e) {
+      var b = e.target.closest('.rm-book'); if (!b) return;
+      trip.bookings.splice(+b.closest('.bk').dataset.i, 1); renderBook(); mark();
+    });
+    $('add-book').addEventListener('click', function () {
+      trip.bookings.push({ id: 'b' + Date.now(), name: '', detail: '', status: 'pending', kind: 'stay' }); renderBook(); mark();
+      var last = $('book-list').lastElementChild; if (last) last.querySelector('input').focus();
+    });
+
+    /* ---------- checklist editor: items, deadlines and live ticks ---------- */
+    function itemRow(it, gi, ii) {
+      var dyn = it.dynamic === 'balance', x = 'ci' + gi + '_' + ii;
+      var main = '<div class="ci-main"><div class="field"><label class="m-label" for="' + x + 't">Item</label><input id="' + x + 't" data-k="title" aria-label="Item" placeholder="Item" value="' + esc(it.title) + '"></div>' +
+        '<div class="field">' + (dyn ? '<input readonly aria-label="Detail" value="Filled in from the payment schedule">' : '<label class="m-label" for="' + x + 'd">Detail shown to the client</label><input id="' + x + 'd" data-k="detail" aria-label="Detail shown to the client" placeholder="Detail shown to the client" value="' + esc(it.detail) + '">') + '</div></div>';
+      var rule = dyn
+        ? '<div class="ci-auto">Follows the final payment: due ' + plural(finalDays(trip), 'day') + ' before departure.</div>'
+        : '<div class="ci-due field"><label class="m-label" for="' + x + 'a">Tick by, days before departure</label><input id="' + x + 'a" data-k="due" type="number" min="0" inputmode="numeric" aria-label="Must be ticked this many days before departure" placeholder="None" value="' + esc(it.due == null ? '' : it.due) + '"></div>' +
+          '<div class="ci-warn field"><label class="m-label" for="' + x + 'w">Signal from, days before</label><input id="' + x + 'w" data-k="warn" type="number" min="0" inputmode="numeric" aria-label="Signal starts this many days before departure" placeholder="Auto" value="' + esc(it.warn == null ? '' : it.warn) + '"></div>';
+      return '<div class="ci' + (dyn ? ' dyn' : '') + '" data-g="' + gi + '" data-i="' + ii + '" data-id="' + esc(it.id) + '">' + main + rule + '<div class="ci-state" data-state></div>' +
+        '<div class="ci-x">' + (dyn ? '' : '<button type="button" class="icon-btn rm-item" aria-label="Remove ' + esc(it.title) + '">' + icon('x') + '</button>') + '</div><p class="ci-hint" data-hint></p></div>';
+    }
+    function renderChecklist() {
+      $('cl-groups').innerHTML = trip.checklist.map(function (g, gi) {
+        return '<div class="gedit" data-g="' + gi + '"><div class="gedit-head"><div class="field"><label for="g' + gi + '">Group</label><input id="g' + gi + '" data-gk="group" value="' + esc(g.group) + '"></div><span class="todo-count" data-gcount></span><button type="button" class="btn ghost small rm-group">Remove group</button></div>' +
+          '<div class="ci-cols" aria-hidden="true"><span>Item and detail</span><span>Tick by<small>days before</small></span><span>Signal from<small>days before</small></span><span></span></div>' +
+          g.items.map(function (it, ii) { return itemRow(it, gi, ii); }).join('') +
+          '<button type="button" class="btn ghost small add-item" data-icon="plus">Add an item</button></div>';
+      }).join('') + '<button type="button" class="btn ghost small" id="add-group" data-icon="plus" style="margin-top:26px">Add a group</button>';
+      paintIcons($('cl-groups')); ruleHints();
+    }
+    function ruleHints() {
+      [].forEach.call($('cl-groups').querySelectorAll('.ci'), function (row) {
+        var it = trip.checklist[+row.dataset.g] && trip.checklist[+row.dataset.g].items[+row.dataset.i], h = row.querySelector('[data-hint]'); if (!it || !h) return;
+        var r = itemRule(trip, it);
+        h.textContent = r ? 'Must be ticked by ' + fmt(r.deadline, shortDate) + '. Signal from ' + fmt(r.from, shortDate) + (it.warn == null || it.warn === '' ? ' (a week before, automatic).' : '.') : '';
+        h.hidden = !r;
+      });
+    }
+    $('cl-groups').addEventListener('input', function (e) {
+      var t = e.target;
+      if (t.dataset.gk) { trip.checklist[+t.closest('.gedit').dataset.g].group = t.value; mark(); return; }
+      var row = t.closest('.ci'); if (!row || !t.dataset.k) return;
+      var it = trip.checklist[+row.dataset.g].items[+row.dataset.i], k = t.dataset.k;
+      it[k] = (k === 'due' || k === 'warn') ? (t.value === '' ? null : +t.value) : t.value;
+      if (k === 'due' || k === 'warn') { ruleHints(); renderLive(); }
+      mark();
+    });
+    $('cl-groups').addEventListener('click', function (e) {
+      var rm = e.target.closest('.rm-item'), add = e.target.closest('.add-item'), rg = e.target.closest('.rm-group');
+      if (rm) { var r = rm.closest('.ci'); trip.checklist[+r.dataset.g].items.splice(+r.dataset.i, 1); renderChecklist(); renderLive(); mark(); }
+      else if (add) {
+        var gi = +add.closest('.gedit').dataset.g; trip.checklist[gi].items.push({ id: 'i' + Date.now(), title: '', detail: '', due: null }); renderChecklist(); renderLive(); mark();
+        var rows = $('cl-groups').querySelectorAll('.gedit')[gi].querySelectorAll('.ci'); rows[rows.length - 1].querySelector('input').focus();
+      }
+      else if (rg) {
+        var g = trip.checklist[+rg.closest('.gedit').dataset.g];
+        if (g.items.length && !confirm('Remove the group "' + g.group + '" and its ' + plural(g.items.length, 'item') + '?')) return;
+        trip.checklist.splice(+rg.closest('.gedit').dataset.g, 1); renderChecklist(); renderLive(); mark();
+      }
+      else if (e.target.closest('#add-group')) {
+        trip.checklist.push({ group: 'New group', key: 'g' + Date.now(), icon: 'bag', items: [] }); renderChecklist(); renderLive(); mark();
+        var gi2 = $('cl-groups').querySelectorAll('.gedit'); var inp = gi2[gi2.length - 1].querySelector('input'); inp.focus(); inp.select();
+      }
+    });
+    function stateHTML(it, todo) {
+      var dyn = it.dynamic === 'balance', done = dyn ? paidSum(trip) >= trip.price : !!todo[it.id];
+      if (done) return '<span class="chip ok">' + icon('check') + (dyn ? 'Paid' : 'Ticked') + '</span>';
+      var s = itemSignal(trip, todo, it);
+      return s ? sigChip(s) : '<span class="chip">' + (dyn ? 'Not paid yet' : 'Not ticked') + '</span>';
+    }
+    function renderLive() {
+      if (!editorOpen) return;
+      var todo = loadTodoById(trip.id), tot = 0, done = 0;
+      [].forEach.call($('cl-groups').querySelectorAll('.gedit'), function (ge) {
+        var g = trip.checklist[+ge.dataset.g], d = 0;
+        [].forEach.call(ge.querySelectorAll('.ci'), function (row) {
+          var it = g.items[+row.dataset.i], el = row.querySelector('[data-state]'), html = stateHTML(it, todo);
+          if (el.innerHTML !== html) el.innerHTML = html;
+          tot++; if (todo[it.id]) { done++; d++; }
+        });
+        ge.querySelector('[data-gcount]').textContent = d + ' of ' + g.items.length + ' ticked';
+      });
+      var key = JSON.stringify(todo);
+      $('cl-count').textContent = done + ' of ' + tot + ' done';
+      $('cl-bar').style.width = (tot ? Math.round(done / tot * 100) : 0) + '%';
+      $('cl-note').textContent = key !== lastCl && lastCl !== '' ? 'Updated just now by the client.' : 'Updates by itself when the client ticks a box.';
+      lastCl = key; renderTable();
+    }
+    setInterval(function () { if (editorOpen) refreshProgress(trip.id).then(function () { if (editorOpen && JSON.stringify(loadTodoById(trip.id)) !== lastCl) renderLive(); }); }, 8000);
+
+    /* ---------- save, reset, misc actions ---------- */
+    $('save').addEventListener('click', function () {
+      trip.included = clean(trip.included); trip.excluded = clean(trip.excluded);
+      trip.bookings = trip.bookings.filter(function (b) { return (b.name || '').trim(); });
+      trip.checklist.forEach(function (g) { g.items = g.items.filter(function (i) { return i.dynamic || (i.title || '').trim(); }); });
+      applyRules(trip);
+      var fresh = trip.payments.filter(function (p) { return p.paid && savedPaid.indexOf(p.id) < 0; });
+      $('dirty').textContent = 'Saving…';
+      saveTrip(trip).then(function (ok) {
+        if (!ok) { $('dirty').textContent = 'Not saved'; toast('Could not save. Check your connection and try again.'); return; }
+        dirty = false; $('dirty').textContent = 'Saved';
+        savedPaid = trip.payments.filter(function (p) { return p.paid; }).map(function (p) { return p.id; });
+        renderLines(); renderBook(); renderChecklist(); renderPay(); renderLive();
+        toast(fresh.length ? 'Saved. Receipt email to ' + (trip.email || 'the client') + ' for: ' + fresh.map(function (p) { return p.note; }).join(', ') + '. (Not built yet.)' : 'Saved. The client sees the update now.');
+      });
+    });
+    $('delete').addEventListener('click', function () {
+      if (!confirm('Delete the trip for ' + trip.clientName + '? This removes the trip and the client\'s ticks for good and cannot be undone.')) return;
+      deleteTrip(trip.id).then(function (ok) { if (!ok) { toast('Could not delete the trip.'); return; } dirty = false; editorOpen = false; $('editor').hidden = true; try { history.replaceState(null, '', location.pathname); } catch (e) {} setNav(); renderTable(); toast('Trip deleted.'); });
+    });
+    $('invite').addEventListener('click', function () {
+      var link = location.origin + location.pathname.replace(/admin\.html$/, '');
+      (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject()).then(function () { toast('Portal link copied: ' + link); }, function () { toast('Portal link: ' + link); });
+    });
+    $('gen').addEventListener('click', function () {
+      var l = [$('l-fr').checked && 'French', $('l-es').checked && 'Spanish', $('l-other').checked && 'another language'].filter(Boolean);
+      toast(l.length ? 'Drafting ' + l.join(' and ') + ' version for you to review.' : 'Tick a language first.');
+    });
+    $('new-trip').addEventListener('click', function () { $('nt-form').reset(); $('nt').showModal(); $('nt-name').focus(); });
+    $('nt-cancel').addEventListener('click', function () { $('nt').close(); });
+    $('nt-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (editorOpen && dirty && !confirm('You have unsaved changes on this trip. Discard them?')) return;
+      var t = newTrip({ clientName: $('nt-name').value.trim(), email: $('nt-email').value, title: $('nt-title').value.trim(), start: $('nt-start').value });
+      saveTrip(t).then(function (ok) {
+        if (!ok) { toast('Could not create the trip.'); return; }
+        dirty = false; $('nt').close(); openTrip(t.id);
+      });
+    });
+    window.addEventListener('beforeunload', function (e) { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+
+    /* ---------- side menu highlight ---------- */
+    function onScroll() {
+      var links = [].slice.call(document.querySelectorAll('#nav a')).filter(function (a) { return !a.hidden; }), y = window.scrollY + 140, cur = 0;
+      links.forEach(function (a, i) { var s = document.querySelector(a.getAttribute('href')); if (s && s.offsetTop <= y) cur = i; });
+      links.forEach(function (a, i) { a.classList.toggle('active', i === cur); });
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    /* ---------- start ---------- */
+    renderTable(); setNav();
+    var wanted = new URLSearchParams(location.search).get('trip');
+    if (wanted && loadTripById(wanted)) openTrip(wanted);
+  });
+  </script>
+</body>
+</html>

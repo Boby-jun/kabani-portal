@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Your Trip — Kabani Safaris</title>
+  <link rel="stylesheet" href="fonts/fonts.css">
+  <link rel="stylesheet" href="portal.css?v=20261117a">
+</head>
+<body>
+  <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Menu</button>
+  <div class="sidebar-backdrop"></div>
+  <aside class="sidebar" id="site-menu">
+    <button class="sidebar-close" type="button" aria-label="Close menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button>
+    <a class="sidebar-logo" href="#overview">Kabani <span>Safaris</span></a>
+    <div class="sidebar-sub">Client portal</div>
+    <nav class="sidebar-nav" id="nav">
+      <a href="#overview">Overview</a>
+      <a href="#itinerary">Itinerary</a>
+      <a href="#guide">Your guide</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#trip">Your trip</a>
+      <a href="#esim" class="gold">Travel eSIM</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <a class="sidebar-web" href="https://kabanisafaris.com" data-icon="arrow-left">Back to website</a>
+    <div class="sidebar-foot">
+      Signed in as<br><span id="who"></span><br>
+      <a href="index.html" data-signout>Sign out</a>
+    </div>
+  </aside>
+
+  <main>
+    <div class="proto-strip" id="admin-strip" hidden>Admin preview of this client page. <a href="admin.html">Back to admin</a></div>
+
+    <section id="overview" class="hero" style="padding-top:88px">
+      <div class="hero-in">
+        <h1 id="h-title"></h1>
+        <p class="lede" id="h-sub"></p>
+        <div class="hero-grid">
+          <div>
+            <div class="count"><b id="count-n">0</b><span id="count-l"></span></div>
+            <div class="stats" id="stats"></div>
+          </div>
+          <div class="ready">
+            <div class="ring"><svg viewBox="0 0 112 112" aria-hidden="true"><circle class="bg" cx="56" cy="56" r="46"/><circle class="fg" id="ring-fg" cx="56" cy="56" r="46"/></svg><strong id="ring-n">0%</strong></div>
+            <div class="ready-txt"><h3>Trip readiness</h3><p id="ready-p"></p><div id="ready-bars"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <div class="card attn" id="attn" hidden></div>
+      <div class="stamps" id="stamps" aria-label="Milestones"></div>
+
+      <section id="itinerary">
+        <div class="sec-head"><h2>Your itinerary, day by day</h2><p class="lede">Tap a day to open it. Rafael adjusts details around wildlife and weather, and you always see the latest version here.</p></div>
+        <div class="timeline" id="days"></div>
+      </section>
+
+      <section id="guide">
+        <div class="sec-head"><h2>Your guide</h2></div>
+        <div class="card guide" id="guide-card"></div>
+      </section>
+
+      <section id="pricing">
+        <div class="sec-head"><h2>Your investment</h2></div>
+        <div class="card">
+          <div class="price-top">
+            <div><div class="price-total" id="p-total"></div><p class="price-note" id="p-note"></p></div>
+            <div>
+              <div class="bar" role="progressbar" aria-label="Amount paid" id="p-bar"><i></i></div>
+              <div class="pay-meta"><span id="p-paid"></span><span id="p-left"></span></div>
+            </div>
+          </div>
+          <div class="inst" id="inst"></div>
+        </div>
+        <div class="two">
+          <div class="card"><h3>Included</h3><ul class="list" id="inc"></ul></div>
+          <div class="card"><h3>Not included</h3><ul class="list no" id="exc"></ul></div>
+        </div>
+        <div class="card" id="offers-card" style="margin-top:28px" hidden><h3>What Kabani Safaris offers</h3><ul class="list" id="offers"></ul></div>
+        <p class="fine" id="policy">A booking is confirmed once at least 50% of the price is received. The balance is due 14 days before the safari starts. The full terms and conditions will be linked here.</p>
+      </section>
+
+      <section id="trip">
+        <div class="sec-head"><h2>Your trip, step by step</h2><p class="lede">What is confirmed, and what is left for you to do before you travel.</p></div>
+        <div class="card"><h3 style="margin-bottom:16px">Bookings</h3><div class="book" id="book"></div></div>
+        <div class="card" style="margin-top:28px">
+          <div class="todo-head"><h3>Before you travel</h3><span class="todo-count" id="todo-count"></span></div>
+          <div class="bar gold" role="progressbar" aria-label="Checklist progress" id="todo-bar"><i></i></div>
+          <div id="groups"></div>
+        </div>
+      </section>
+
+      <section id="esim">
+        <div class="esim">
+          <span class="badge" data-icon="signal"></span>
+          <div><h3>Stay connected with a travel eSIM</h3><p>No roaming bills and no SIM card. Activated in minutes, in more than 190 countries.</p></div>
+          <a class="btn" href="https://kabanisafaris.com/travel-esim.html">Get your eSIM</a>
+        </div>
+      </section>
+
+      <section id="contact">
+        <div class="sec-head"><h2>Asante sana. Questions?</h2><p class="lede">Rafael is available by phone every day until you are back home.</p></div>
+        <div class="contact">
+          <a class="card" id="wa" href="#"><span class="badge" data-icon="chat"></span><span><b>WhatsApp</b><small id="wa-n"></small></span></a>
+          <a class="card" id="em" href="#"><span class="badge" data-icon="mail"></span><span><b>Email</b><small id="em-n"></small></span></a>
+        </div>
+        <p class="web-back"><a class="btn ghost" href="https://kabanisafaris.com" data-icon="arrow-left">Back to kabanisafaris.com</a></p>
+        <p class="fine">Itinerary, lodges and activities can change with wildlife and weather. <a href="terms.html">Terms and conditions</a> and <a href="privacy.html">privacy notice</a>.</p>
+      </section>
+    </div>
+  </main>
+
+  <script src="vendor/supabase.js"></script>
+  <script src="config.js?v=20261117a"></script>
+  <script src="portal.js?v=20261117c"></script>
+  <script>
+  portalStart('any').then(function () {
+    bindSignOut();
+    var trip = loadTrip(), todo = loadTodo();
+    var $ = function (id) { return document.getElementById(id); };
+    if (DB.admin) $('admin-strip').hidden = false;
+    if (!trip) {
+      document.querySelector('main').innerHTML = '<div class="wrap" style="padding:96px 24px"><div class="sec-head"><h1 style="font-size:clamp(30px,4vw,44px)">No trip here yet</h1><p class="lede">We could not find an active trip for ' + esc(DB.email) + '. Trip pages close 3 months after the trip ends. If you expect one, write to <a href="mailto:reservations@kabanisafaris.com">reservations@kabanisafaris.com</a> and we will sort it out.</p></div><p><a class="btn ghost" href="' + WEBSITE + '" data-icon="arrow-left">Back to kabanisafaris.com</a></p></div>';
+      paintIcons(); return;
+    }
+
+    $('who').textContent = DB.email;
+    $('h-title').innerHTML = esc(trip.title).replace(/(\S+)$/, '<em>$1</em>');
+    $('h-sub').textContent = 'Welcome, ' + trip.firstName + '. ' + trip.subtitle;
+
+    /* countdown */
+    var du = daysUntil(trip.start);
+    var nDays = trip.days.length, nights = Math.max(0, nDays - 1);
+    var end = addDays(trip.start, nDays - 1);
+    var target = du > 0 ? du : 0;
+    $('count-l').textContent = du > 0 ? 'days until your safari begins on ' + fmt(parseISO(trip.start), { day: 'numeric', month: 'long', year: 'numeric' })
+      : (du >= -(nDays - 1) ? 'You are on safari. Enjoy every moment.' : 'Welcome back. We hope it was unforgettable.');
+    var n = $('count-n'), reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || target === 0) { n.textContent = target; }
+    else { var t0 = null; (function step(ts) { t0 = t0 || ts; var p = Math.min(1, (ts - t0) / 900); n.textContent = Math.round(target * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(step); })(performance.now()); }
+
+    var places = {}; trip.days.forEach(function (d) { d.place.split(' to ').forEach(function (p) { places[p] = 1; }); });
+    $('stats').innerHTML = (trip.stats || [[nDays, 'days'], [nights, 'nights'], [trip.countries, trip.countries === 1 ? 'country' : 'countries'], [Object.keys(places).length, 'places']])
+      .map(function (s) { return '<div class="stat"><b>' + s[0] + '</b><span>' + s[1] + '</span></div>'; }).join('');
+
+    /* itinerary */
+    $('days').innerHTML = trip.days.map(function (d, i) {
+      var date = fmt(addDays(trip.start, i), { weekday: 'long', day: 'numeric', month: 'long' });
+      return '<details class="day"' + (i === 0 ? ' open' : '') + '><summary><span class="day-no">Day ' + (i + 1) + '</span><span><span class="day-title">' + esc(d.title) + '</span><span class="day-date">' + date + ' · ' + esc(d.place) + '</span></span>' + icon('chevron') + '</summary>' +
+        '<div class="day-body"><p>' + esc(d.desc) + '</p><div class="day-meta"><div>' + icon('bed') + '<span><small>Stay</small>' + esc(d.stay) + '</span></div><div>' + icon('meal') + '<span><small>Meals</small>' + esc(d.meals) + '</span></div></div></div></details>';
+    }).join('');
+
+    /* guide */
+    var g = trip.guide;
+    $('guide-card').innerHTML = '<div class="avatar">' + (mediaUrl(g.photo) ? '<img src="' + esc(mediaUrl(g.photo)) + '" alt="' + esc(g.name) + '">' : esc(g.name.charAt(0))) + '</div><div><h3>' + esc(g.name) + '</h3><p style="margin-top:2px;color:#6A5A4A">Based in ' + esc(g.base) + (g.daysLabel ? ' · ' + esc(g.daysLabel) : '') + '</p><p>' + esc(g.bio) + '</p><div class="tags">' + g.languages.map(function (l) { return '<span class="chip">' + esc(l) + '</span>'; }).join('') + '</div></div>';
+
+    /* pricing */
+    var paid = paidSum(trip), left = Math.max(0, trip.price - paid), pct = trip.price ? Math.round(paid / trip.price * 100) : 0;
+    $('p-total').textContent = chf(trip.price);
+    $('p-note').textContent = nDays + ' days, ' + nights + ' nights, ' + trip.clientName;
+    $('p-paid').textContent = chf(paid) + ' paid (' + pct + '%)';
+    $('p-left').textContent = left === 0 ? 'Fully paid' : chf(left) + ' remaining';
+    $('p-bar').setAttribute('aria-valuenow', pct);
+    $('inst').innerHTML = trip.payments.map(function (p, i) {
+      var s = paySignal(trip, i), last = i === trip.payments.length - 1;
+      return '<div><span><b style="font-weight:500">' + esc(p.note) + '</b><small>' + (p.paid ? 'Received ' : 'Due ') + fmt(parseISO(p.date), { day: 'numeric', month: 'long', year: 'numeric' }) + (last && !p.paid ? ', ' + finalDays(trip) + ' days before departure' : '') + '</small></span><span class="row"><b style="font-weight:500">' + chf(p.amount) + '</b>' +
+        (p.paid ? '<span class="chip ok">' + icon('check') + 'Paid</span>' : (s ? sigChip(s) : '<span class="chip wait">Due</span>')) + '</span></div>';
+    }).join('');
+    trip.included = trip.included.filter(Boolean); trip.excluded = trip.excluded.filter(Boolean);
+    $('inc').innerHTML = trip.included.map(function (t) { return '<li>' + icon('check') + '<span>' + esc(t) + '</span></li>'; }).join('');
+    $('exc').innerHTML = trip.excluded.map(function (t) { return '<li>' + icon('x') + '<span>' + esc(t) + '</span></li>'; }).join('');
+
+    if (trip.offers && trip.offers.length) { $('offers-card').hidden = false; $('offers').innerHTML = trip.offers.map(function (t) { return '<li>' + icon('check') + '<span>' + esc(t) + '</span></li>'; }).join(''); }
+    if (trip.policy) $('policy').textContent = trip.policy;
+    else $('policy').textContent = 'A booking is confirmed once at least 50% of the price is received. The balance is due ' + finalDays(trip) + ' days before the safari starts. The full terms and conditions will be linked here.';
+    if (trip.hero) $('overview').style.backgroundImage = "linear-gradient(180deg, rgba(26,51,68,0.5), rgba(26,51,68,0.9)), url('" + mediaUrl(trip.hero) + "')";
+    document.title = trip.title + ' — Kabani Safaris';
+
+    /* bookings */
+    $('book').innerHTML = trip.bookings.map(function (b) {
+      return '<div><span class="badge" style="width:42px;height:42px">' + icon(b.kind === 'stay' ? 'bed' : 'route') + '</span><span><b>' + esc(b.name) + '</b><small>' + esc(b.detail) + '</small></span>' +
+        (b.status === 'confirmed' ? '<span class="chip ok">' + icon('check') + 'Confirmed</span>' : '<span class="chip wait">Pending</span>') + '</div>';
+    }).join('');
+
+    /* checklist + progress + stamps */
+    var lastStamps = null;
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    /* send the client to what is missing, and light it up for a moment */
+    function flash(els) { els.forEach(function (e) { e.classList.add('hl'); }); setTimeout(function () { els.forEach(function (e) { e.classList.remove('hl'); }); }, 2600); }
+    function goTo(els, fallback) {
+      var list = els.filter(Boolean), first = list[0] || fallback; if (!first) return;
+      first.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+      if (list.length) flash(list);
+    }
+    function rows(id) { return [].slice.call($(id).children); }
+    function todoEl(id) { return document.querySelector('.todo[data-id="' + id + '"]'); }
+    function missingCounts() {
+      var docs = trip.checklist.filter(function (g) { return g.key === 'docs'; })[0];
+      return {
+        docs: docs ? docs.items.filter(function (i) { return !todo[i.id]; }).length : 0,
+        stays: trip.bookings.filter(function (b) { return b.kind === 'stay' && b.status !== 'confirmed'; }).length
+      };
+    }
+    function missingFor(key) {
+      var payRows = rows('inst'), bookRows = rows('book');
+      var unpaid = payRows.filter(function (el, i) { return !trip.payments[i].paid; });
+      var pendingBk = bookRows.filter(function (el, i) { return trip.bookings[i].status !== 'confirmed'; });
+      var open = function (g) { return g.items.map(function (i) { return !todo[i.id] && !(i.dynamic && paidSum(trip) >= trip.price) ? todoEl(i.id) : null; }).filter(Boolean); };
+      if (key === 'deposit') return { els: payRows.slice(0, 1).filter(function () { return !trip.payments[0].paid; }), fb: $('inst') };
+      if (key === 'stays') return { els: bookRows.filter(function (el, i) { return trip.bookings[i].kind === 'stay' && trip.bookings[i].status !== 'confirmed'; }), fb: $('book') };
+      if (key === 'docs') { var g = trip.checklist.filter(function (x) { return x.key === 'docs'; })[0]; return { els: g ? open(g) : [], fb: document.querySelector('.group[data-key="docs"]') || $('groups') }; }
+      var items = [].concat.apply([], trip.checklist.map(open));
+      if (unpaid.length) return { els: unpaid, fb: $('inst'), note: 'Start with the payment.' };
+      if (pendingBk.length) return { els: pendingBk, fb: $('book'), note: 'These bookings are still pending with us.' };
+      if (items.length) return { els: items, fb: $('groups'), note: items.length + (items.length === 1 ? ' item' : ' items') + ' left on your checklist.' };
+      return { els: [], fb: $('stamps'), note: 'Everything is in place. See you in Kenya.' };
+    }
+    $('stamps').addEventListener('click', function (e) {
+      var b = e.target.closest('.stamp'); if (!b) return;
+      var m = missingFor(b.getAttribute('data-stamp')); goTo(m.els, m.fb); if (m.note) toast(m.note);
+    });
+    $('attn').addEventListener('click', function (e) {
+      var a = e.target.closest('a[data-ref]'); if (!a) return; e.preventDefault();
+      var ref = a.getAttribute('data-ref').split(':'), el = ref[0] === 'pay' ? rows('inst')[+ref[1]] : todoEl(ref[1]);
+      goTo([el], $(ref[0] === 'pay' ? 'pricing' : 'trip'));
+    });
+    function paintSignals() {
+      trip.checklist.forEach(function (g) { g.items.forEach(function (it) {
+        var b = document.querySelector('.todo[data-id="' + it.id + '"]'); if (!b) return;
+        var s = itemSignal(trip, todo, it), el = b.querySelector('.sig'), done = it.dynamic ? paidSum(trip) >= trip.price : !!todo[it.id];
+        el.innerHTML = (s && !done) ? sigChip(s) : '';
+      }); });
+      var al = alerts(trip, todo), box = $('attn');
+      box.hidden = !al.length;
+      if (al.length) {
+        var late = al.some(function (a) { return a.s.level === 'late'; });
+        box.innerHTML = '<div class="attn-head ' + (late ? 'late' : 'soon') + '"><span class="badge">' + icon('bell') + '</span><div><h3>' + (late ? 'Some things are overdue' : 'Coming up soon') + '</h3><p>' + (al.length === 1 ? '1 thing needs' : al.length + ' things need') + ' your attention before you travel.</p></div></div><ul>' +
+          al.map(function (a) { return '<li><a href="#' + a.where + '" data-ref="' + a.ref + '"><span class="l">' + esc(a.label) + '</span>' + sigChip(a.s) + icon('arrow') + '</a></li>'; }).join('') + '</ul>';
+      }
+      ['pricing', 'trip'].forEach(function (w) {
+        var link = document.querySelector('#nav a[href="#' + w + '"]'); if (!link) return;
+        var dot = link.querySelector('.nav-dot'); if (dot) dot.remove();
+        var here = al.filter(function (a) { return a.where === w; });
+        if (here.length) link.insertAdjacentHTML('beforeend', '<i class="nav-dot' + (here.some(function (a) { return a.s.level === 'late'; }) ? ' late' : '') + '" title="Needs attention"></i>');
+      });
+    }
+    function paint(initial) {
+      var ts = todoStats(trip, todo), tp = ts.total ? Math.round(ts.done / ts.total * 100) : 0;
+      $('todo-count').textContent = ts.done + ' of ' + ts.total + ' done';
+      $('todo-bar').firstElementChild.style.width = tp + '%'; $('todo-bar').setAttribute('aria-valuenow', tp);
+      document.querySelectorAll('.group').forEach(function (el, gi) {
+        var items = trip.checklist[gi].items, d = items.filter(function (i) { return todo[i.id]; }).length;
+        el.querySelector('.gcount').textContent = d + ' / ' + items.length;
+      });
+      paintSignals();
+      var r = readiness(trip, todo);
+      $('ready-bars').innerHTML = topicBars(r, true);
+      $('ring-n').textContent = r.total + '%';
+      $('ring-fg').style.strokeDashoffset = 289 - 289 * r.total / 100;
+      $('ready-p').textContent = r.total === 100 ? 'Everything is in place. See you in Kenya.' : 'Payments, bookings and your checklist. Complete them to earn all four stamps.';
+      var st = stamps(trip, todo);
+      var missing = missingCounts(), fresh = function (i) { return initial || !lastStamps || (st[i].on && !lastStamps[i].on); };
+      $('stamps').innerHTML = st.map(function (s, i) {
+        var sub = s.on ? 'Earned' : s.key === 'docs' ? (missing.docs === 1 ? '1 item left' : missing.docs + ' items left') : s.key === 'stays' ? (missing.stays === 1 ? '1 stay pending' : missing.stays + ' stays pending') : s.key === 'ready' ? r.total + '% there' : 'Not yet';
+        return '<button type="button" class="stamp' + (s.on ? ' earned' : '') + (s.on && fresh(i) ? ' pop' : '') + '" data-stamp="' + s.key + '"><span class="badge">' + icon(s.on ? 'check' : s.icon) + '</span><b>' + s.label + '</b><span class="s-sub">' + sub + '</span><span class="s-go">' + (s.on ? 'View' : 'See what’s missing') + icon('arrow') + '</span></button>';
+      }).join('');
+      if (lastStamps && !initial) st.forEach(function (s, i) { if (s.on && !lastStamps[i].on) toast('Stamp earned: ' + s.label); });
+      lastStamps = st;
+    }
+    $('groups').innerHTML = trip.checklist.map(function (g) {
+      return '<div class="group" data-key="' + esc(g.key) + '"><h4><span>' + esc(g.group) + '</span><span class="gcount"></span></h4>' + g.items.map(function (i) {
+        return '<button type="button" class="todo' + (todo[i.id] ? ' done' : '') + '" data-id="' + i.id + '" aria-pressed="' + (!!todo[i.id]) + '"><span class="box">' + icon('check') + '</span><span><b>' + esc(i.title) + '</b><small>' + esc(itemDetail(trip, i)) + '</small></span><span class="sig"></span></button>';
+      }).join('') + '</div>';
+    }).join('');
+    $('groups').addEventListener('click', function (e) {
+      var b = e.target.closest('.todo'); if (!b) return;
+      var id = b.getAttribute('data-id'); todo[id] = !todo[id]; saveTodo(todo).then(function (ok) { if (!ok) toast('Could not save your tick. Check your connection and try again.'); });
+      b.classList.toggle('done', !!todo[id]); b.setAttribute('aria-pressed', !!todo[id]);
+      paint(false);
+    });
+    paint(true);
+    // fill bars after first paint so they animate
+    requestAnimationFrame(function () { requestAnimationFrame(function () { $('p-bar').firstElementChild.style.width = pct + '%'; }); });
+
+    /* contact */
+    var wa = trip.contact.whatsapp;
+    $('wa').href = 'https://wa.me/' + wa.replace(/[^0-9]/g, ''); $('wa-n').textContent = wa;
+    $('em').href = 'mailto:' + trip.contact.email; $('em-n').textContent = trip.contact.email;
+
+    /* active nav */
+    var links = [].slice.call(document.querySelectorAll('#nav a'));
+    var secs = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+    function onScroll() { var y = window.scrollY + 140, cur = 0; secs.forEach(function (s, i) { if (s && s.offsetTop <= y) cur = i; }); links.forEach(function (a, i) { a.classList.toggle('active', i === cur); }); }
+    window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  });
+  </script>
+</body>
+</html>

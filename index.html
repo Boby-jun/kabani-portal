@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Client Login — Kabani Safaris</title>
+  <link rel="stylesheet" href="fonts/fonts.css">
+  <link rel="stylesheet" href="portal.css?v=20261117a">
+</head>
+<body class="login-body">
+  <div class="login-art">
+    <video id="bg-video" muted loop playsinline preload="metadata" poster="media/login-poster.jpg" aria-hidden="true" tabindex="-1"></video>
+    <a class="sidebar-logo" href="#">Kabani <span>Safaris</span></a>
+    <h1>Your safari, all in one place.</h1>
+    <p>Your itinerary, your guide, your payments and your checklist, kept up to date.</p>
+  </div>
+
+  <div class="login-pane">
+    <div class="login-card">
+      <a class="web-link" href="https://kabanisafaris.com" data-icon="arrow-left">Back to kabanisafaris.com</a>
+      <h2>Client login</h2>
+      <p class="lede" id="lede">Enter the email address you gave us when you booked. We will send you a one-time code.</p>
+
+      <form id="email-form" novalidate>
+        <div class="field">
+          <label for="email">Email address</label>
+          <input id="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="name@example.com" required>
+        </div>
+        <button class="btn green" type="submit" id="send" style="width:100%">Continue with your email</button>
+        <p class="msg" id="email-msg" role="status" aria-live="polite"></p>
+      </form>
+
+      <form id="code-form" novalidate hidden>
+        <div class="field">
+          <label for="code">One-time code</label>
+          <input id="code" class="otp" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="8" placeholder="123456" required>
+        </div>
+        <button class="btn green" type="submit" id="verify" style="width:100%">Sign in</button>
+        <p class="msg" id="code-msg" role="status" aria-live="polite"></p>
+        <p class="hint" style="margin-top:14px"><button class="linkish" type="button" id="resend">Send a new code</button> &nbsp;·&nbsp; <button class="linkish" type="button" id="other">Use a different email</button></p>
+      </form>
+
+      <p class="hint">Not a client yet? <a href="https://kabanisafaris.com/plan-your-journey.html">Plan your journey</a>. Your trip appears here once Rafael has set it up with your email address.</p>
+      <p class="hint"><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></p>
+    </div>
+  </div>
+
+  <script src="vendor/supabase.js"></script>
+  <script src="config.js?v=20261117a"></script>
+  <script src="portal.js?v=20261117c"></script>
+  <script>
+    // background video: small file on phones, none if the visitor prefers less motion or saves data
+    (function () {
+      var v = document.getElementById('bg-video');
+      var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches || (navigator.connection && navigator.connection.saveData);
+      if (still) return;
+      v.src = window.matchMedia('(max-width: 960px)').matches ? 'media/login-small.mp4' : 'media/login-960.mp4';
+      v.muted = true;
+      var p = v.play(); if (p && p.catch) p.catch(function () {});
+    })();
+
+    (function () {
+      var $ = function (id) { return document.getElementById(id); };
+      var email = '', cooldown = 0, timer = null;
+
+      function route() {
+        $('lede').textContent = 'Signing you in…';
+        sb.rpc('is_admin').then(function (r) { location.replace(r.data === true ? 'admin.html' : 'trip.html'); });
+      }
+      function busy(btn, on, label) { btn.disabled = on; if (label) btn.textContent = label; }
+      function startCooldown() {
+        cooldown = 45; $('resend').disabled = true;
+        clearInterval(timer);
+        timer = setInterval(function () {
+          cooldown--; $('resend').textContent = cooldown > 0 ? 'Send a new code in ' + cooldown + 's' : 'Send a new code';
+          if (cooldown <= 0) { clearInterval(timer); $('resend').disabled = false; }
+        }, 1000);
+        $('resend').textContent = 'Send a new code in ' + cooldown + 's';
+      }
+      function sendCode() {
+        var redirect = new URL('index.html', location.href).href;
+        return sb.auth.signInWithOtp({ email: email, options: { shouldCreateUser: true, emailRedirectTo: redirect } });
+      }
+
+      if (!window.sb) { $('email-msg').textContent = 'The portal is not configured yet.'; return; }
+      var EXPIRED = 'For your security, you were signed out after 15 minutes without activity. Please sign in again.';
+      if (/[?&]expired=1/.test(location.search)) $('email-msg').textContent = EXPIRED;
+      var fromLink = /access_token|refresh_token|[?&]code=/.test(location.hash + location.search);
+      sb.auth.getSession().then(function (r) {
+        if (!(r.data && r.data.session)) return;
+        if (fromLink) markActive();
+        if (idleExpired()) { sb.auth.signOut().catch(function () {}).then(function () { try { localStorage.removeItem(ACT_KEY); } catch (e) {} $('email-msg').textContent = EXPIRED; }); }
+        else route();
+      });
+
+      $('email-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        email = $('email').value.trim().toLowerCase();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { $('email-msg').textContent = 'Please enter a valid email address.'; $('email').focus(); return; }
+        busy($('send'), true, 'Sending…'); $('email-msg').textContent = '';
+        sendCode().then(function (r) {
+          busy($('send'), false, 'Continue with your email');
+          if (r.error && (r.error.status === 429 || /rate|limit|seconds/i.test(r.error.message || ''))) { $('email-msg').textContent = 'Too many requests. Please wait a minute and try again.'; return; }
+          /* The same answer whether or not the address has a trip, so nobody can probe who our clients are. */
+          $('email-form').hidden = true; $('code-form').hidden = false;
+          $('lede').textContent = 'If ' + email + ' has a trip with us, a code is on its way. It can take a minute. You can also tap the link in the email.';
+          startCooldown(); $('code').focus();
+        });
+      });
+      $('code-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var token = $('code').value.replace(/\s/g, '');
+        if (token.length < 6) { $('code-msg').textContent = 'The code has 6 digits.'; $('code').focus(); return; }
+        busy($('verify'), true, 'Checking…'); $('code-msg').textContent = '';
+        sb.auth.verifyOtp({ email: email, token: token, type: 'email' }).then(function (r) {
+          if (r.error) { busy($('verify'), false, 'Sign in'); $('code-msg').textContent = 'That code did not work. Check it, or send a new one.'; $('code').select(); return; }
+          markActive(); route();
+        });
+      });
+      $('resend').addEventListener('click', function () {
+        $('code-msg').textContent = ''; sendCode().then(function () { $('code-msg').textContent = 'A new code is on its way.'; startCooldown(); });
+      });
+      $('other').addEventListener('click', function () {
+        clearInterval(timer); $('code-form').hidden = true; $('email-form').hidden = false; $('code').value = '';
+        $('lede').textContent = 'Enter the email address you gave us when you booked. We will send you a one-time code.'; $('email').focus();
+      });
+    })();
+  </script>
+</body>
+</html>
