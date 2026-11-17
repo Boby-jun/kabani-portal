@@ -442,6 +442,7 @@ button.stamp:active { transform: scale(0.97); }
 .lg { display: inline-flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 500; color: var(--c); }
 .lg svg { width: 18px; height: 18px; }
 .ready-txt { flex: 1; min-width: 0; }
+.ready-txt h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; line-height: inherit; text-wrap: initial; }
 .ready-txt .tb { margin-top: 14px; }
 @media (max-width: 768px) {
   .legend { margin: 0; flex-basis: 100%; order: 3; flex-wrap: wrap; }
