@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex, nofollow">
   <title>Your Trip — Kabani Safaris</title>
   <link rel="stylesheet" href="fonts/fonts.css">
-  <link rel="stylesheet" href="portal.css?v=20261117d">
+  <link rel="stylesheet" href="portal.css?v=20261117g">
 </head>
 <body>
   <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Menu</button>
@@ -24,6 +24,7 @@
       <a href="#esim" class="gold">Travel eSIM</a>
       <a href="#contact">Contact</a>
     </nav>
+    <a class="sidebar-web" id="side-admin" href="admin.html" data-icon="arrow-left" hidden>Back to admin</a>
     <a class="sidebar-web" href="https://kabanisafaris.com" data-icon="arrow-left">Back to website</a>
     <div class="sidebar-foot">
       Signed in as<br><span id="who"></span><br>
@@ -32,7 +33,7 @@
   </aside>
 
   <main>
-    <div class="proto-strip" id="admin-strip" hidden>Admin preview of this client page. <a href="admin.html">Back to admin</a></div>
+    <div class="admin-bar" id="admin-strip" role="region" aria-label="Admin preview" hidden><span><b>Admin preview</b><i> of this client page</i></span><a href="admin.html" data-icon="arrow-left">Back to admin</a></div>
 
     <section id="overview" class="hero" style="padding-top:88px">
       <div class="hero-in">
@@ -123,7 +124,7 @@
     bindSignOut();
     var trip = loadTrip(), todo = loadTodo();
     var $ = function (id) { return document.getElementById(id); };
-    if (DB.admin) $('admin-strip').hidden = false;
+    if (DB.admin) { $('admin-strip').hidden = false; $('side-admin').hidden = false; paintIcons(); }
     if (!trip) {
       document.querySelector('main').innerHTML = '<div class="wrap" style="padding:96px 24px"><div class="sec-head"><h1 style="font-size:clamp(30px,4vw,44px)">No trip here yet</h1><p class="lede">We could not find an active trip for ' + esc(DB.email) + '. Trip pages close 3 months after the trip ends. If you expect one, write to <a href="mailto:reservations@kabanisafaris.com">reservations@kabanisafaris.com</a> and we will sort it out.</p></div><p><a class="btn ghost" href="' + WEBSITE + '" data-icon="arrow-left">Back to kabanisafaris.com</a></p></div>';
       paintIcons(); return;

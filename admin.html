@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex, nofollow">
   <title>Admin — Kabani Safaris</title>
   <link rel="stylesheet" href="fonts/fonts.css">
-  <link rel="stylesheet" href="portal.css?v=20261117d">
+  <link rel="stylesheet" href="portal.css?v=20261117g">
 </head>
 <body>
   <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Menu</button>
@@ -67,7 +67,7 @@
             <div class="field"><label for="f-start">Departure (first day)</label><input id="f-start" type="date"></div>
           </div>
           <div class="field"><label for="f-sub">One-line summary</label><input id="f-sub"></div>
-          <p class="hint" style="margin-top:0">Clients can sign in with Google, Apple or phone. They only see the trip whose email or phone number matches the account they sign in with.</p>
+          <p class="hint" style="margin-top:0">Clients sign in only with a one-time code sent to their email address. They see only the trip whose email address matches. The phone number is for you to reach them and is not used to sign in.</p>
         </div>
       </section>
 
@@ -116,11 +116,8 @@
         <div class="two" style="margin-top:0">
           <div class="card">
             <h3>Output languages</h3>
-            <p class="hint" style="margin-top:6px">English is always included. Add the languages your client asked for.</p>
-            <label class="check"><input type="checkbox" checked disabled> English (main version)</label>
-            <label class="check"><input type="checkbox" id="l-fr"> French</label>
-            <label class="check"><input type="checkbox" id="l-es"> Spanish</label>
-            <label class="check"><input type="checkbox" id="l-other"> Other language on request</label>
+            <p class="hint" style="margin-top:6px">English is always included. Tick the languages your client asked for. Each language appears once, in this order: East Africa, the most spoken in the world, Europe, Asia.</p>
+            <div id="lang-list" class="lang-list"></div>
             <button class="btn ghost small" type="button" id="gen" data-icon="globe" style="margin-top:12px">Generate translations</button>
             <p class="hint">Not built yet. Translations will be drafted for you to read before the client sees them.</p>
           </div>
@@ -218,7 +215,7 @@
       if (editorOpen && dirty && !confirm('You have unsaved changes on this trip. Discard them?')) return;
       trip = loadTripById(id); dirty = false; lastCl = '';
       editorOpen = true; $('editor').hidden = false;
-      fillFields(); renderDays(); renderPay(); renderLines(); renderBook(); renderChecklist(); renderLive();
+      fillFields(); renderLangs(); renderDays(); renderPay(); renderLines(); renderBook(); renderChecklist(); renderLive();
       $('dirty').textContent = 'No unsaved changes';
       $('see').href = 'trip.html?trip=' + id; $('editing').textContent = 'You are editing ' + trip.clientName + ', ' + trip.title + '.' + (trip.start && trip.days.length ? ' The client can see this trip until ' + fmt(addDays(trip.start, trip.days.length - 1 + 90), longDate) + ' (3 months after the trip ends).' : '');
       savedPaid = trip.payments.filter(function (p) { return p.paid; }).map(function (p) { return p.id; });
@@ -494,9 +491,35 @@
       var link = location.origin + location.pathname.replace(/admin\.html$/, '');
       (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject()).then(function () { toast('Portal link copied: ' + link); }, function () { toast('Portal link: ' + link); });
     });
+    /* ---------- languages: East Africa first, then the world's most spoken, then Europe, then Asia; each language once ---------- */
+    var LANG_GROUPS = [
+      { name: 'East Africa', note: 'Where your trips happen', items: ['Swahili'] },
+      { name: 'Most spoken in the world', note: 'English is always included', items: ['Mandarin Chinese', 'Hindi', 'Spanish', 'Arabic'] },
+      { name: 'Europe', note: 'Spanish is listed above', items: ['French', 'German', 'Italian', 'Russian'] },
+      { name: 'Asia and Central Asia', note: 'Mandarin and Hindi are listed above', items: ['Bengali', 'Urdu', 'Indonesian'] }
+    ];
+    function renderLangs() {
+      var chosen = trip.languages || [], h = '<label class="check"><input type="checkbox" checked disabled> English <span class="hint-inline">main version, always included</span></label>';
+      LANG_GROUPS.forEach(function (g, gi) {
+        h += '<div class="lang-group"><h4>' + esc(g.name) + '<small>' + esc(g.note) + '</small></h4><div class="lang-grid">' + g.items.map(function (l) {
+          return '<label class="check"><input type="checkbox" data-lang="' + esc(l) + '"' + (chosen.indexOf(l) > -1 ? ' checked' : '') + '> ' + esc(l) + '</label>';
+        }).join('') + '</div></div>';
+      });
+      h += '<div class="lang-group"><div class="lang-grid"><label class="check"><input type="checkbox" id="l-other"' + (trip.langOther ? ' checked' : '') + '> Other language on request</label></div></div>';
+      $('lang-list').innerHTML = h;
+    }
+    $('lang-list').addEventListener('change', function (e) {
+      var t = e.target; if (!t || t.type !== 'checkbox') return;
+      if (t.id === 'l-other') trip.langOther = t.checked;
+      else if (t.getAttribute('data-lang')) {
+        var l = t.getAttribute('data-lang'), list = trip.languages = trip.languages || [], i = list.indexOf(l);
+        if (t.checked && i < 0) list.push(l); else if (!t.checked && i > -1) list.splice(i, 1);
+      }
+      mark();
+    });
     $('gen').addEventListener('click', function () {
-      var l = [$('l-fr').checked && 'French', $('l-es').checked && 'Spanish', $('l-other').checked && 'another language'].filter(Boolean);
-      toast(l.length ? 'Drafting ' + l.join(' and ') + ' version for you to review.' : 'Tick a language first.');
+      var l = (trip.languages || []).concat(trip.langOther ? ['another language'] : []);
+      toast(l.length ? 'Drafting ' + (l.length > 1 ? l.slice(0, -1).join(', ') + ' and ' + l[l.length - 1] : l[0]) + ' for you to review. (Not built yet.)' : 'Tick a language first.');
     });
     $('new-trip').addEventListener('click', function () { $('nt-form').reset(); $('nt').showModal(); $('nt-name').focus(); });
     $('nt-cancel').addEventListener('click', function () { $('nt').close(); });

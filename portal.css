@@ -511,3 +511,23 @@ mark.todo-mark { background: var(--ochre); color: var(--dark); padding: 0 4px; }
   .legal td::before { content: attr(data-label); display: block; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
   .legal h2 { font-size: 21px; }
 }
+
+/* ---- language list in the admin ---- */
+.lang-list { margin-top: 8px; }
+.lang-group { margin-top: 14px; }
+.lang-group h4 { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--tan-text); margin: 0 0 2px; display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline; }
+.lang-group h4 small { font-size: 13px; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--muted); }
+.lang-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 18px; }
+.hint-inline { font-size: 13px; color: var(--muted); margin-left: 4px; }
+@media (max-width: 520px) { .lang-grid { grid-template-columns: 1fr; } }
+
+/* ---- admin preview of a client page: pinned bar and menu link, shown to the admin only ---- */
+.admin-bar { position: sticky; top: 0; z-index: 80; margin: 0 -56px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 16px; background: var(--ochre); color: var(--navy-dark); border-bottom: 2px solid var(--dark); font-size: 13px; font-weight: 600; letter-spacing: 0.04em; }
+.admin-bar[hidden], .sidebar-web[hidden] { display: none; }
+.admin-bar a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; background: var(--navy-dark); color: #fff; border: 2px solid var(--dark); text-decoration: none; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
+.admin-bar a svg { width: 16px; height: 16px; }
+.admin-bar a:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) { .admin-bar a:hover { background: var(--navy); } }
+.sidebar-web + .sidebar-web { margin-top: 10px; }
+.admin-bar i { font-style: normal; font-weight: 500; }
+@media (max-width: 768px) { .admin-bar { margin: 0 -20px; padding: 6px 12px 6px 124px; font-size: 12px; line-height: 1.2; } .admin-bar span { flex: 1; } .admin-bar i { display: none; } .admin-bar a { padding: 0 12px; letter-spacing: 0.04em; } }
