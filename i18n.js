@@ -1,7 +1,7 @@
 /* Kabani Safaris client portal: interface languages (English, French, Spanish).
    Only the portal's own wording is translated here. A trip's own text (itinerary, hotel and
    guide descriptions) is written per trip and stays as entered.
-   Pick order: ?lang=fr in the link, then the visitor's saved choice, then the browser language.
+   Pick order: ?lang=fr in the link, then the visitor's saved choice, otherwise English (the browser language is deliberately ignored).
    t('English text', {n: 3}) returns the translation, or the English text when there is none. */
 (function () {
   var KEY = 'kabani_portal_lang', SUP = ['en', 'fr', 'es'];
@@ -12,8 +12,7 @@
     var m = /[?&]lang=(en|fr|es)\b/.exec(location.search);
     if (m) { try { localStorage.setItem(KEY, m[1]); } catch (e) {} return m[1]; }
     try { var s = localStorage.getItem(KEY); if (SUP.indexOf(s) >= 0) return s; } catch (e) {}
-    var n = String((navigator.languages && navigator.languages[0]) || navigator.language || 'en').slice(0, 2).toLowerCase();
-    return SUP.indexOf(n) >= 0 ? n : 'en';
+    return 'en'; /* English is the standard; FR and ES only when chosen with the switch or a ?lang= link */
   }
   var LANG = detect();
   window.LANG = LANG;
