@@ -33,6 +33,7 @@
         </div>
         <button class="btn green" type="submit" id="send" style="width:100%">Continue with your email</button>
         <p class="msg" id="email-msg" role="status" aria-live="polite"></p>
+        <p class="hint" id="forget-box" hidden style="margin-top:12px"><button class="linkish" type="button" id="forget">Not you? Use a different email</button></p>
       </form>
 
       <form id="code-form" novalidate hidden>
@@ -52,8 +53,8 @@
 
   <script src="vendor/supabase.js"></script>
   <script src="config.js?v=20261117a"></script>
-  <script src="i18n.js?v=20261124c"></script>
-  <script src="portal.js?v=20261124b"></script>
+  <script src="i18n.js?v=20261124d"></script>
+  <script src="portal.js?v=20261124d"></script>
   <script>
     // background video: small file on phones, none if the visitor prefers less motion or saves data
     (function () {
@@ -89,8 +90,16 @@
       }
 
       if (!window.sb) { $('email-msg').textContent = t('The portal is not configured yet.'); return; }
-      var EXPIRED = t('For your security, you were signed out after 15 minutes without activity. Please sign in again.');
+      var EXPIRED = t('For your security, you were signed out after 30 minutes without activity. Please sign in again.');
       if (/[?&]expired=1/.test(location.search)) $('email-msg').textContent = EXPIRED;
+      /* after signing out (or a time-out) the email is filled in again, so one tap sends a new code */
+      var remembered = ''; try { remembered = localStorage.getItem('kabani_portal_email') || ''; } catch (e) {}
+      if (remembered) { $('email').value = remembered; $('forget-box').hidden = false; }
+      if (/[?&]out=1/.test(location.search)) $('email-msg').textContent = t('You are signed out. Press Continue and we will send you a new code.');
+      $('forget').addEventListener('click', function () {
+        try { localStorage.removeItem('kabani_portal_email'); } catch (e) {}
+        $('email').value = ''; $('forget-box').hidden = true; $('email-msg').textContent = ''; $('email').focus();
+      });
       var fromLink = /access_token|refresh_token|[?&]code=/.test(location.hash + location.search);
       sb.auth.getSession().then(function (r) {
         if (!(r.data && r.data.session)) return;
@@ -120,6 +129,7 @@
         busy($('verify'), true, t('Checking…')); $('code-msg').textContent = '';
         sb.auth.verifyOtp({ email: email, token: token, type: 'email' }).then(function (r) {
           if (r.error) { busy($('verify'), false, t('Sign in')); $('code-msg').textContent = t('That code did not work. Check it, or send a new one.'); $('code').select(); return; }
+          try { localStorage.setItem('kabani_portal_email', email); } catch (e) {}
           markActive(); route();
         });
       });

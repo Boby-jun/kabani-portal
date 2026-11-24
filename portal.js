@@ -93,8 +93,8 @@ function portalStart(role) {
     return never();
   });
 }
-/* ---- sign-in memory: you stay signed in while you use the portal, and for 15 minutes after you last used it ---- */
-var IDLE_MS = 15 * 60 * 1000, ACT_KEY = 'kabani_portal_last_active';
+/* ---- sign-in memory: you stay signed in while you use the portal, and for 30 minutes after you last used it ---- */
+var IDLE_MS = 30 * 60 * 1000, ACT_KEY = 'kabani_portal_last_active';
 function lastActive() { try { return +localStorage.getItem(ACT_KEY) || 0; } catch (e) { return 0; } }
 /* A tiny flag cookie (no personal data: just "client" or "admin") lets kabanisafaris.com show "My trip" instead of "Client Login" while you are signed in. It lasts as long as the idle window and is removed on sign out. */
 function setFlag() {
@@ -123,10 +123,10 @@ function watchActivity() {
   });
   setInterval(function () { if (idleExpired()) expireSession(); }, 30000);
 }
-function signOut() { return sb.auth.signOut().catch(function () {}).then(function () { try { localStorage.removeItem(ACT_KEY); } catch (e) {} clearFlag(); location.href = 'index.html'; }); }
+function signOut() { return sb.auth.signOut().catch(function () {}).then(function () { try { localStorage.removeItem(ACT_KEY); } catch (e) {} clearFlag(); location.href = 'index.html?out=1'; }); }
 function bindSignOut() {
   [].forEach.call(document.querySelectorAll('[data-signout]'), function (a) {
-    a.addEventListener('click', function (e) { e.preventDefault(); signOut(); });
+    a.addEventListener('click', function (e) { e.preventDefault(); if (confirm(t('Sign out? You will need a new code to come back.'))) signOut(); });
   });
 }
 
