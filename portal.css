@@ -533,3 +533,17 @@ mark.todo-mark { background: var(--ochre); color: var(--dark); padding: 0 4px; }
 .sidebar-web + .sidebar-web { margin-top: 10px; }
 .admin-bar i { font-style: normal; font-weight: 500; }
 @media (max-width: 768px) { .admin-bar { margin: 0 -20px; padding: 6px 12px 6px 124px; font-size: 12px; line-height: 1.2; } .admin-bar { display: flex; } .admin-bar span { flex: 1; text-align: center; } .admin-bar i { display: none; } .admin-bar a { padding: 0 12px; letter-spacing: 0.04em; } }
+
+/* ---- language switch (EN / FR / ES) ---- */
+.lang-switch { display: flex; gap: 2px; }
+.lang-switch[hidden] { display: none; }
+.lang-switch button { min-width: 44px; min-height: 44px; padding: 0 10px; background: none; border: 0; font: inherit; font-size: 14px; font-weight: 500; letter-spacing: 0.08em; color: var(--tan-text); cursor: pointer; }
+.lang-switch button[aria-pressed="true"] { font-weight: 700; text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 2px; }
+.lang-switch button:active { transform: scale(0.97); }
+.lang-switch button:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; }
+@media (hover: hover) and (pointer: fine) { .lang-switch button:hover { text-decoration: underline; text-underline-offset: 6px; } }
+.login-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+.login-top .web-link { margin-bottom: 0; }
+.sidebar-foot .lang-switch { margin: 0 0 10px -10px; }
+.sidebar-foot .lang-switch button { color: rgba(255,255,255,0.7); }
+.sidebar-foot .lang-switch button[aria-pressed="true"] { color: #fff; }

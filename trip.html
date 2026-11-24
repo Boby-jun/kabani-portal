@@ -10,7 +10,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <link rel="stylesheet" href="fonts/fonts.css">
-  <link rel="stylesheet" href="portal.css?v=20261117i">
+  <link rel="stylesheet" href="portal.css?v=20261124a">
 </head>
 <body>
   <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Menu</button>
@@ -31,6 +31,7 @@
     <a class="sidebar-web" id="side-admin" href="admin.html" data-icon="arrow-left" hidden>Back to admin</a>
     <a class="sidebar-web" href="https://kabanisafaris.com" data-icon="arrow-left">Back to website</a>
     <div class="sidebar-foot">
+      <div class="lang-switch" data-lang-switch></div>
       Signed in as<br><span id="who"></span><br>
       <a href="index.html" data-signout>Sign out</a>
     </div>
@@ -115,14 +116,15 @@
           <a class="card" id="em" href="#"><span class="badge" data-icon="mail"></span><span><b>Email</b><small id="em-n"></small></span></a>
         </div>
         <p class="web-back"><a class="btn ghost" href="https://kabanisafaris.com" data-icon="arrow-left">Back to kabanisafaris.com</a></p>
-        <p class="fine">Itinerary, lodges and activities can change with wildlife and weather. <a href="terms.html">Terms and conditions</a> and <a href="privacy.html">privacy notice</a>.</p>
+        <p class="fine" data-th="trip-fine">Itinerary, lodges and activities can change with wildlife and weather. <a href="terms.html">Terms and conditions</a> and <a href="privacy.html">privacy notice</a>.</p>
       </section>
     </div>
   </main>
 
   <script src="vendor/supabase.js"></script>
   <script src="config.js?v=20261117a"></script>
-  <script src="portal.js?v=20261117j"></script>
+  <script src="i18n.js?v=20261124a"></script>
+  <script src="portal.js?v=20261124a"></script>
   <script>
   portalStart('any').then(function () {
     bindSignOut();
@@ -130,66 +132,66 @@
     var $ = function (id) { return document.getElementById(id); };
     if (DB.admin) { $('admin-strip').hidden = false; $('side-admin').hidden = false; paintIcons(); }
     if (!trip) {
-      document.querySelector('main').innerHTML = '<div class="wrap" style="padding:96px 24px"><div class="sec-head"><h1 style="font-size:clamp(30px,4vw,44px)">No trip here yet</h1><p class="lede">We could not find an active trip for ' + esc(DB.email) + '. Trip pages close 3 months after the trip ends. If you expect one, write to <a href="mailto:reservations@kabanisafaris.com">reservations@kabanisafaris.com</a> and we will sort it out.</p></div><p><a class="btn ghost" href="' + WEBSITE + '" data-icon="arrow-left">Back to kabanisafaris.com</a></p></div>';
+      document.querySelector('main').innerHTML = '<div class="wrap" style="padding:96px 24px"><div class="sec-head"><h1 style="font-size:clamp(30px,4vw,44px)">' + t('No trip here yet') + '</h1><p class="lede">' + esc(t('We could not find an active trip for {email}. Trip pages close 3 months after the trip ends. If you expect one, write to', { email: DB.email })) + ' <a href="mailto:reservations@kabanisafaris.com">reservations@kabanisafaris.com</a> ' + t('and we will sort it out.') + '</p></div><p><a class="btn ghost" href="' + WEBSITE + '" data-icon="arrow-left">' + t('Back to kabanisafaris.com') + '</a></p></div>';
       paintIcons(); return;
     }
 
     $('who').textContent = DB.email;
     $('h-title').innerHTML = esc(trip.title).replace(/(\S+)$/, '<em>$1</em>');
-    $('h-sub').textContent = 'Welcome, ' + trip.firstName + '. ' + trip.subtitle;
+    $('h-sub').textContent = t('Welcome, {name}.', { name: trip.firstName }) + ' ' + t(trip.subtitle);
 
     /* countdown */
     var du = daysUntil(trip.start);
     var nDays = trip.days.length, nights = Math.max(0, nDays - 1);
     var end = addDays(trip.start, nDays - 1);
     var target = du > 0 ? du : 0;
-    $('count-l').textContent = du > 0 ? 'days until your safari begins on ' + fmt(parseISO(trip.start), { day: 'numeric', month: 'long', year: 'numeric' })
-      : (du >= -(nDays - 1) ? 'You are on safari. Enjoy every moment.' : 'Welcome back. We hope it was unforgettable.');
+    $('count-l').textContent = du > 0 ? t('days until your safari begins on {date}', { date: fmt(parseISO(trip.start), { day: 'numeric', month: 'long', year: 'numeric' }) })
+      : (du >= -(nDays - 1) ? t('You are on safari. Enjoy every moment.') : t('Welcome back. We hope it was unforgettable.'));
     var n = $('count-n'), reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce || target === 0) { n.textContent = target; }
     else { var t0 = null; (function step(ts) { t0 = t0 || ts; var p = Math.min(1, (ts - t0) / 900); n.textContent = Math.round(target * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(step); })(performance.now()); }
 
     var places = {}; trip.days.forEach(function (d) { d.place.split(' to ').forEach(function (p) { places[p] = 1; }); });
-    $('stats').innerHTML = (trip.stats || [[nDays, 'days'], [nights, 'nights'], [trip.countries, trip.countries === 1 ? 'country' : 'countries'], [Object.keys(places).length, 'places']])
-      .map(function (s) { return '<div class="stat"><b>' + s[0] + '</b><span>' + s[1] + '</span></div>'; }).join('');
+    $('stats').innerHTML = (trip.stats || [[nDays, nDays === 1 ? 'day' : 'days'], [nights, nights === 1 ? 'night' : 'nights'], [trip.countries, trip.countries === 1 ? 'country' : 'countries'], [Object.keys(places).length, 'places']])
+      .map(function (s) { return '<div class="stat"><b>' + s[0] + '</b><span>' + esc(t(s[1])) + '</span></div>'; }).join('');
 
     /* itinerary */
     $('days').innerHTML = trip.days.map(function (d, i) {
       var date = fmt(addDays(trip.start, i), { weekday: 'long', day: 'numeric', month: 'long' });
-      return '<details class="day"' + (i === 0 ? ' open' : '') + '><summary><span class="day-no">Day ' + (i + 1) + '</span><span><span class="day-title">' + esc(d.title) + '</span><span class="day-date">' + date + ' · ' + esc(d.place) + '</span></span>' + icon('chevron') + '</summary>' +
-        '<div class="day-body"><p>' + esc(d.desc) + '</p><div class="day-meta"><div>' + icon('bed') + '<span><small>Stay</small>' + esc(d.stay) + '</span></div><div>' + icon('meal') + '<span><small>Meals</small>' + esc(d.meals) + '</span></div></div></div></details>';
+      return '<details class="day"' + (i === 0 ? ' open' : '') + '><summary><span class="day-no">' + t('Day {n}', { n: i + 1 }) + '</span><span><span class="day-title">' + esc(d.title) + '</span><span class="day-date">' + date + ' · ' + esc(d.place) + '</span></span>' + icon('chevron') + '</summary>' +
+        '<div class="day-body"><p>' + esc(d.desc) + '</p><div class="day-meta"><div>' + icon('bed') + '<span><small>' + t('Stay') + '</small>' + esc(d.stay) + '</span></div><div>' + icon('meal') + '<span><small>' + t('Meals') + '</small>' + esc(d.meals) + '</span></div></div></div></details>';
     }).join('');
 
     /* guide */
     var g = trip.guide;
-    $('guide-card').innerHTML = '<div class="avatar">' + (mediaUrl(g.photo) ? '<img src="' + esc(mediaUrl(g.photo)) + '" alt="' + esc(g.name) + '">' : esc(g.name.charAt(0))) + '</div><div><h3>' + esc(g.name) + '</h3><p style="margin-top:2px;color:#6A5A4A">Based in ' + esc(g.base) + (g.daysLabel ? ' · ' + esc(g.daysLabel) : '') + '</p><p>' + esc(g.bio) + '</p><div class="tags">' + g.languages.map(function (l) { return '<span class="chip">' + esc(l) + '</span>'; }).join('') + '</div></div>';
+    $('guide-card').innerHTML = '<div class="avatar">' + (mediaUrl(g.photo) ? '<img src="' + esc(mediaUrl(g.photo)) + '" alt="' + esc(g.name) + '">' : esc(g.name.charAt(0))) + '</div><div><h3>' + esc(g.name) + '</h3><p style="margin-top:2px;color:#6A5A4A">' + t('Based in {place}', { place: esc(g.base) }) + (g.daysLabel ? ' · ' + esc(g.daysLabel) : '') + '</p><p>' + esc(g.bio) + '</p><div class="tags">' + g.languages.map(function (l) { return '<span class="chip">' + esc(l) + '</span>'; }).join('') + '</div></div>';
 
     /* pricing */
     var paid = paidSum(trip), left = Math.max(0, trip.price - paid), pct = trip.price ? Math.round(paid / trip.price * 100) : 0;
     $('p-total').textContent = chf(trip.price);
-    $('p-note').textContent = nDays + ' days, ' + nights + ' nights, ' + trip.clientName;
-    $('p-paid').textContent = chf(paid) + ' paid (' + pct + '%)';
-    $('p-left').textContent = left === 0 ? 'Fully paid' : chf(left) + ' remaining';
+    $('p-note').textContent = tn(nDays, '{n} day', '{n} days') + ', ' + tn(nights, '{n} night', '{n} nights') + ', ' + trip.clientName;
+    $('p-paid').textContent = t('{amount} paid ({pct}%)', { amount: chf(paid), pct: pct });
+    $('p-left').textContent = left === 0 ? t('Fully paid') : t('{amount} remaining', { amount: chf(left) });
     $('p-bar').setAttribute('aria-valuenow', pct);
     $('inst').innerHTML = trip.payments.map(function (p, i) {
       var s = paySignal(trip, i), last = i === trip.payments.length - 1;
-      return '<div><span><b style="font-weight:500">' + esc(p.note) + '</b><small>' + (p.paid ? 'Received ' : 'Due ') + fmt(parseISO(p.date), { day: 'numeric', month: 'long', year: 'numeric' }) + (last && !p.paid ? ', ' + finalDays(trip) + ' days before departure' : '') + '</small></span><span class="row"><b style="font-weight:500">' + chf(p.amount) + '</b>' +
-        (p.paid ? '<span class="chip ok">' + icon('check') + 'Paid</span>' : (s ? sigChip(s) : '<span class="chip wait">Due</span>')) + '</span></div>';
+      return '<div><span><b style="font-weight:500">' + esc(t(p.note)) + '</b><small>' + (p.paid ? t('Received on') : t('Due on')) + ' ' + fmt(parseISO(p.date), { day: 'numeric', month: 'long', year: 'numeric' }) + (last && !p.paid ? t(', {n} days before departure', { n: finalDays(trip) }) : '') + '</small></span><span class="row"><b style="font-weight:500">' + chf(p.amount) + '</b>' +
+        (p.paid ? '<span class="chip ok">' + icon('check') + t('Paid') + '</span>' : (s ? sigChip(s) : '<span class="chip wait">' + t('Due') + '</span>')) + '</span></div>';
     }).join('');
     trip.included = trip.included.filter(Boolean); trip.excluded = trip.excluded.filter(Boolean);
-    $('inc').innerHTML = trip.included.map(function (t) { return '<li>' + icon('check') + '<span>' + esc(t) + '</span></li>'; }).join('');
-    $('exc').innerHTML = trip.excluded.map(function (t) { return '<li>' + icon('x') + '<span>' + esc(t) + '</span></li>'; }).join('');
+    $('inc').innerHTML = trip.included.map(function (x) { return '<li>' + icon('check') + '<span>' + esc(t(x)) + '</span></li>'; }).join('');
+    $('exc').innerHTML = trip.excluded.map(function (x) { return '<li>' + icon('x') + '<span>' + esc(t(x)) + '</span></li>'; }).join('');
 
-    if (trip.offers && trip.offers.length) { $('offers-card').hidden = false; $('offers').innerHTML = trip.offers.map(function (t) { return '<li>' + icon('check') + '<span>' + esc(t) + '</span></li>'; }).join(''); }
-    if (trip.policy) $('policy').textContent = trip.policy;
-    else $('policy').textContent = 'A booking is confirmed once at least 50% of the price is received. The balance is due ' + finalDays(trip) + ' days before the safari starts. The full terms and conditions will be linked here.';
+    if (trip.offers && trip.offers.length) { $('offers-card').hidden = false; $('offers').innerHTML = trip.offers.map(function (x) { return '<li>' + icon('check') + '<span>' + esc(t(x)) + '</span></li>'; }).join(''); }
+    if (trip.policy) $('policy').textContent = t(trip.policy);
+    else $('policy').textContent = t('A booking is confirmed once at least 50% of the price is received. The balance is due {n} days before the safari starts. The full terms and conditions will be linked here.', { n: finalDays(trip) });
     if (trip.hero) $('overview').style.backgroundImage = "linear-gradient(180deg, rgba(26,51,68,0.5), rgba(26,51,68,0.9)), url('" + mediaUrl(trip.hero) + "')";
     document.title = trip.title + ' — Kabani Safaris';
 
     /* bookings */
     $('book').innerHTML = trip.bookings.map(function (b) {
       return '<div><span class="badge" style="width:42px;height:42px">' + icon(b.kind === 'stay' ? 'bed' : 'route') + '</span><span><b>' + esc(b.name) + '</b><small>' + esc(b.detail) + '</small></span>' +
-        (b.status === 'confirmed' ? '<span class="chip ok">' + icon('check') + 'Confirmed</span>' : '<span class="chip wait">Pending</span>') + '</div>';
+        (b.status === 'confirmed' ? '<span class="chip ok">' + icon('check') + t('Confirmed') + '</span>' : '<span class="chip wait">' + t('Pending') + '</span>') + '</div>';
     }).join('');
 
     /* checklist + progress + stamps */
@@ -220,10 +222,10 @@
       if (key === 'stays') return { els: bookRows.filter(function (el, i) { return trip.bookings[i].kind === 'stay' && trip.bookings[i].status !== 'confirmed'; }), fb: $('book') };
       if (key === 'docs') { var g = trip.checklist.filter(function (x) { return x.key === 'docs'; })[0]; return { els: g ? open(g) : [], fb: document.querySelector('.group[data-key="docs"]') || $('groups') }; }
       var items = [].concat.apply([], trip.checklist.map(open));
-      if (unpaid.length) return { els: unpaid, fb: $('inst'), note: 'Start with the payment.' };
-      if (pendingBk.length) return { els: pendingBk, fb: $('book'), note: 'These bookings are still pending with us.' };
-      if (items.length) return { els: items, fb: $('groups'), note: items.length + (items.length === 1 ? ' item' : ' items') + ' left on your checklist.' };
-      return { els: [], fb: $('stamps'), note: 'Everything is in place. See you in Kenya.' };
+      if (unpaid.length) return { els: unpaid, fb: $('inst'), note: t('Start with the payment.') };
+      if (pendingBk.length) return { els: pendingBk, fb: $('book'), note: t('These bookings are still pending with us.') };
+      if (items.length) return { els: items, fb: $('groups'), note: tn(items.length, '1 item left on your checklist.', '{n} items left on your checklist.') };
+      return { els: [], fb: $('stamps'), note: t('Everything is in place. See you in Kenya.') };
     }
     $('stamps').addEventListener('click', function (e) {
       var b = e.target.closest('.stamp'); if (!b) return;
@@ -244,19 +246,19 @@
       box.hidden = !al.length;
       if (al.length) {
         var late = al.some(function (a) { return a.s.level === 'late'; });
-        box.innerHTML = '<div class="attn-head ' + (late ? 'late' : 'soon') + '"><span class="badge">' + icon('bell') + '</span><div><h3>' + (late ? 'Some things are overdue' : 'Coming up soon') + '</h3><p>' + (al.length === 1 ? '1 thing needs' : al.length + ' things need') + ' your attention before you travel.</p></div></div><ul>' +
+        box.innerHTML = '<div class="attn-head ' + (late ? 'late' : 'soon') + '"><span class="badge">' + icon('bell') + '</span><div><h3>' + (late ? t('Some things are overdue') : t('Coming up soon')) + '</h3><p>' + tn(al.length, '1 thing needs your attention before you travel.', '{n} things need your attention before you travel.') + '</p></div></div><ul>' +
           al.map(function (a) { return '<li><a href="#' + a.where + '" data-ref="' + a.ref + '"><span class="l">' + esc(a.label) + '</span>' + sigChip(a.s) + icon('arrow') + '</a></li>'; }).join('') + '</ul>';
       }
       ['pricing', 'trip'].forEach(function (w) {
         var link = document.querySelector('#nav a[href="#' + w + '"]'); if (!link) return;
         var dot = link.querySelector('.nav-dot'); if (dot) dot.remove();
         var here = al.filter(function (a) { return a.where === w; });
-        if (here.length) link.insertAdjacentHTML('beforeend', '<i class="nav-dot' + (here.some(function (a) { return a.s.level === 'late'; }) ? ' late' : '') + '" title="Needs attention"></i>');
+        if (here.length) link.insertAdjacentHTML('beforeend', '<i class="nav-dot' + (here.some(function (a) { return a.s.level === 'late'; }) ? ' late' : '') + '" title="' + t('Needs attention') + '"></i>');
       });
     }
     function paint(initial) {
       var ts = todoStats(trip, todo), tp = ts.total ? Math.round(ts.done / ts.total * 100) : 0;
-      $('todo-count').textContent = ts.done + ' of ' + ts.total + ' done';
+      $('todo-count').textContent = t('{done} of {total} done', { done: ts.done, total: ts.total });
       $('todo-bar').firstElementChild.style.width = tp + '%'; $('todo-bar').setAttribute('aria-valuenow', tp);
       document.querySelectorAll('.group').forEach(function (el, gi) {
         var items = trip.checklist[gi].items, d = items.filter(function (i) { return todo[i.id]; }).length;
@@ -267,24 +269,24 @@
       $('ready-bars').innerHTML = topicBars(r, true);
       $('ring-n').textContent = r.total + '%';
       $('ring-fg').style.strokeDashoffset = 289 - 289 * r.total / 100;
-      $('ready-p').textContent = r.total === 100 ? 'Everything is in place. See you in Kenya.' : 'Payments, bookings and your checklist. Complete them to earn all four stamps.';
+      $('ready-p').textContent = r.total === 100 ? t('Everything is in place. See you in Kenya.') : t('Payments, bookings and your checklist. Complete them to earn all four stamps.');
       var st = stamps(trip, todo);
       var missing = missingCounts(), fresh = function (i) { return initial || !lastStamps || (st[i].on && !lastStamps[i].on); };
       $('stamps').innerHTML = st.map(function (s, i) {
-        var sub = s.on ? 'Earned' : s.key === 'docs' ? (missing.docs === 1 ? '1 item left' : missing.docs + ' items left') : s.key === 'stays' ? (missing.stays === 1 ? '1 stay pending' : missing.stays + ' stays pending') : s.key === 'ready' ? r.total + '% there' : 'Not yet';
-        return '<button type="button" class="stamp' + (s.on ? ' earned' : '') + (s.on && fresh(i) ? ' pop' : '') + '" data-stamp="' + s.key + '"><span class="badge">' + icon(s.on ? 'check' : s.icon) + '</span><b>' + s.label + '</b><span class="s-sub">' + sub + '</span><span class="s-go">' + (s.on ? 'View' : 'See what’s missing') + icon('arrow') + '</span></button>';
+        var sub = s.on ? t('Earned') : s.key === 'docs' ? tn(missing.docs, '1 item left', '{n} items left') : s.key === 'stays' ? tn(missing.stays, '1 stay pending', '{n} stays pending') : s.key === 'ready' ? t('{n}% there', { n: r.total }) : t('Not yet');
+        return '<button type="button" class="stamp' + (s.on ? ' earned' : '') + (s.on && fresh(i) ? ' pop' : '') + '" data-stamp="' + s.key + '"><span class="badge">' + icon(s.on ? 'check' : s.icon) + '</span><b>' + s.label + '</b><span class="s-sub">' + sub + '</span><span class="s-go">' + (s.on ? t('View') : t('See what’s missing')) + icon('arrow') + '</span></button>';
       }).join('');
-      if (lastStamps && !initial) st.forEach(function (s, i) { if (s.on && !lastStamps[i].on) toast('Stamp earned: ' + s.label); });
+      if (lastStamps && !initial) st.forEach(function (s, i) { if (s.on && !lastStamps[i].on) toast(t('Stamp earned: {label}', { label: s.label })); });
       lastStamps = st;
     }
     $('groups').innerHTML = trip.checklist.map(function (g) {
-      return '<div class="group" data-key="' + esc(g.key) + '"><h4><span>' + esc(g.group) + '</span><span class="gcount"></span></h4>' + g.items.map(function (i) {
-        return '<button type="button" class="todo' + (todo[i.id] ? ' done' : '') + '" data-id="' + i.id + '" aria-pressed="' + (!!todo[i.id]) + '"><span class="box">' + icon('check') + '</span><span><b>' + esc(i.title) + '</b><small>' + esc(itemDetail(trip, i)) + '</small></span><span class="sig"></span></button>';
+      return '<div class="group" data-key="' + esc(g.key) + '"><h4><span>' + esc(t(g.group)) + '</span><span class="gcount"></span></h4>' + g.items.map(function (i) {
+        return '<button type="button" class="todo' + (todo[i.id] ? ' done' : '') + '" data-id="' + i.id + '" aria-pressed="' + (!!todo[i.id]) + '"><span class="box">' + icon('check') + '</span><span><b>' + esc(t(i.title)) + '</b><small>' + esc(itemDetail(trip, i)) + '</small></span><span class="sig"></span></button>';
       }).join('') + '</div>';
     }).join('');
     $('groups').addEventListener('click', function (e) {
       var b = e.target.closest('.todo'); if (!b) return;
-      var id = b.getAttribute('data-id'); todo[id] = !todo[id]; saveTodo(todo).then(function (ok) { if (!ok) toast('Could not save your tick. Check your connection and try again.'); });
+      var id = b.getAttribute('data-id'); todo[id] = !todo[id]; saveTodo(todo).then(function (ok) { if (!ok) toast(t('Could not save your tick. Check your connection and try again.')); });
       b.classList.toggle('done', !!todo[id]); b.setAttribute('aria-pressed', !!todo[id]);
       paint(false);
     });

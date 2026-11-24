@@ -197,18 +197,18 @@ var TRIP_TEMPLATE = {
 };
 
 /* checklist text that follows the payments, e.g. the balance reminder */
-function itemDetail(t, i) {
+function itemDetail(trip, i) {
   if (i.dynamic === 'balance') {
-    var left = Math.max(0, t.price - paidSum(t)), last = t.payments[t.payments.length - 1];
-    return left === 0 ? 'Fully paid. Thank you!' : chf(left) + ' due by ' + fmt(parseISO(last.date), { day: 'numeric', month: 'long', year: 'numeric' }) + ', ' + finalDays(t) + ' days before departure. Contact Rafael to pay.';
+    var left = Math.max(0, trip.price - paidSum(trip)), last = trip.payments[trip.payments.length - 1];
+    return left === 0 ? t('Fully paid. Thank you!') : t('{amount} due by {date}, {n} days before departure. Contact Rafael to pay.', { amount: chf(left), date: fmt(parseISO(last.date), { day: 'numeric', month: 'long', year: 'numeric' }), n: finalDays(trip) });
   }
-  return i.detail;
+  return t(i.detail);
 }
 
 function chf(n) { return 'CHF ' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '’'); }
 function parseISO(iso) { var p = iso.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
 function addDays(iso, n) { var d = parseISO(iso); d.setDate(d.getDate() + n); return d; }
-function fmt(d, o) { return d.toLocaleDateString('en-GB', o || { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }); }
+function fmt(d, o) { return d.toLocaleDateString(window.LOCALE || 'en-GB', o || { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }); }
 function pad2(n) { return (n < 10 ? '0' : '') + n; }
 function toISO(d) { return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
 function todayISO() { return toISO(new Date()); }
@@ -237,8 +237,8 @@ function sig(t, deadline, warnFrom) {
   return null;
 }
 function sigText(s) {
-  if (s.level === 'late') return s.days + (s.days === 1 ? ' day' : ' days') + ' overdue';
-  return s.days === 0 ? 'Due today' : 'Due in ' + s.days + (s.days === 1 ? ' day' : ' days');
+  if (s.level === 'late') return tn(s.days, '{n} day overdue', '{n} days overdue');
+  return s.days === 0 ? t('Due today') : tn(s.days, 'Due in {n} day', 'Due in {n} days');
 }
 function sigChip(s) { return '<span class="chip ' + s.level + '"><i class="dot"></i>' + sigText(s) + '</span>'; }
 function paySignal(t, i) {
@@ -260,8 +260,8 @@ function itemSignal(t, todo, it) {
 /* everything that needs the client's attention right now, most urgent first */
 function alerts(t, todo) {
   var out = [];
-  t.payments.forEach(function (p, i) { var s = paySignal(t, i); if (s) out.push({ s: s, where: 'pricing', ref: 'pay:' + i, label: p.note + ', ' + chf(p.amount) }); });
-  t.checklist.forEach(function (g) { g.items.forEach(function (it) { if (it.dynamic) return; var s = itemSignal(t, todo, it); if (s) out.push({ s: s, where: 'trip', ref: 'item:' + it.id, label: it.title }); }); });
+  t.payments.forEach(function (p, i) { var s = paySignal(t, i); if (s) out.push({ s: s, where: 'pricing', ref: 'pay:' + i, label: t(p.note) + ', ' + chf(p.amount) }); });
+  t.checklist.forEach(function (g) { g.items.forEach(function (it) { if (it.dynamic) return; var s = itemSignal(t, todo, it); if (s) out.push({ s: s, where: 'trip', ref: 'item:' + it.id, label: t(it.title) }); }); });
   return out.sort(function (a, b) {
     var la = a.s.level === 'late', lb = b.s.level === 'late';
     if (la !== lb) return la ? -1 : 1;
@@ -285,22 +285,22 @@ function readiness(t, todo) {
 /* One colour per topic. Red, orange and yellow stay reserved for deadline signals. */
 var TOPICS = [{ k: 'pay', label: 'Payments', icon: 'wallet' }, { k: 'book', label: 'Bookings', icon: 'bed' }, { k: 'todo', label: 'Checklist', icon: 'list' }];
 function topicBars(r, withLabels) {
-  return '<div class="tb' + (withLabels ? ' lab' : '') + '" role="group" aria-label="Readiness by topic">' + TOPICS.map(function (t) {
-    var p = Math.round(r[t.k] * 100);
-    return '<div class="tb-row t-' + t.k + '" title="' + t.label + ' ' + p + '%"><span class="tb-ic">' + icon(t.icon) + '</span>' + (withLabels ? '<span class="tb-l">' + t.label + '</span>' : '<span class="sr">' + t.label + '</span>') +
+  return '<div class="tb' + (withLabels ? ' lab' : '') + '" role="group" aria-label="' + t('Readiness by topic') + '">' + TOPICS.map(function (tp) {
+    var p = Math.round(r[tp.k] * 100), lb = t(tp.label);
+    return '<div class="tb-row t-' + tp.k + '" title="' + lb + ' ' + p + '%"><span class="tb-ic">' + icon(tp.icon) + '</span>' + (withLabels ? '<span class="tb-l">' + lb + '</span>' : '<span class="sr">' + lb + '</span>') +
       '<span class="tb-bar"><i style="width:' + p + '%"></i></span><span class="tb-p">' + p + '%</span></div>';
   }).join('') + '</div>';
 }
-function stamps(t, todo) {
-  var r = readiness(t, todo);
-  var docs = t.checklist.filter(function (g) { return g.key === 'docs'; })[0];
+function stamps(trip, todo) {
+  var r = readiness(trip, todo);
+  var docs = trip.checklist.filter(function (g) { return g.key === 'docs'; })[0];
   var docsDone = docs ? docs.items.every(function (i) { return todo[i.id]; }) : false;
-  var stays = t.bookings.filter(function (b) { return b.kind === 'stay'; });
+  var stays = trip.bookings.filter(function (b) { return b.kind === 'stay'; });
   return [
-    { key: 'deposit', icon: 'star', label: 'Deposit paid', on: paidSum(t) > 0 },
-    { key: 'stays', icon: 'bed', label: 'Stays confirmed', on: stays.length > 0 && stays.every(function (b) { return b.status === 'confirmed'; }) },
-    { key: 'docs', icon: 'doc', label: 'Documents ready', on: docsDone },
-    { key: 'ready', icon: 'flag', label: 'Ready to go', on: r.total === 100 }
+    { key: 'deposit', icon: 'star', label: t('Deposit paid'), on: paidSum(trip) > 0 },
+    { key: 'stays', icon: 'bed', label: t('Stays confirmed'), on: stays.length > 0 && stays.every(function (b) { return b.status === 'confirmed'; }) },
+    { key: 'docs', icon: 'doc', label: t('Documents ready'), on: docsDone },
+    { key: 'ready', icon: 'flag', label: t('Ready to go'), on: r.total === 100 }
   ];
 }
 
