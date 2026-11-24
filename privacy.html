@@ -16,7 +16,7 @@
 <body class="legal-body">
   <header class="legal-head">
     <a class="brand" href="index.html">Kabani <span>Safaris</span></a>
-    <a class="web-link" href="https://kabanisafaris.com" data-icon="arrow-left">Back to kabanisafaris.com</a>
+    <a class="web-link" href="trip.html" data-icon="arrow-left">Back to your portal</a>
   </header>
   <main class="legal">
     <p class="draft-banner" id="draft"><b>Draft.</b> A Swiss lawyer has not yet reviewed this text, so it may be updated. The version and date are shown below the title.</p>
@@ -115,7 +115,18 @@
 
     <h2 id="contact">11. Questions</h2>
     <p>Write to <a href="mailto:reservations@kabanisafaris.com">reservations@kabanisafaris.com</a> or message us on WhatsApp at +41 78 611 23 30.</p>
+    <p style="margin-top:28px"><a class="web-link" href="trip.html" data-icon="arrow-left">Back to your portal</a></p>
   </main>
   <script src="portal.js?v=20261124b"></script>
+  <script>
+    /* Who is reading? A visitor who came from the main website goes back to the website; everyone else (a client in the
+       portal, or someone at the login page) goes back to the portal. The website can also link here with ?from=website. */
+    (function () {
+      var fromSite = /[?&]from=website\b/.test(location.search) || /^https:\/\/(www\.)?kabanisafaris\.com(\/|$)/.test(document.referrer);
+      if (!fromSite) return;
+      [].forEach.call(document.querySelectorAll('a.web-link'), function (a) { a.href = 'https://kabanisafaris.com'; a.textContent = 'Back to website'; });
+      [].forEach.call(document.querySelectorAll('a[href="terms.html"], a[href="privacy.html"]'), function (a) { a.href = a.getAttribute('href') + '?from=website'; });
+    })();
+  </script>
 </body>
 </html>
