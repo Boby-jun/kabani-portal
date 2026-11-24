@@ -258,10 +258,10 @@ function itemSignal(t, todo, it) {
   var r = itemRule(t, it); return r ? sig(t, r.deadline, r.from) : null;
 }
 /* everything that needs the client's attention right now, most urgent first */
-function alerts(t, todo) {
+function alerts(trip, todo) {
   var out = [];
-  t.payments.forEach(function (p, i) { var s = paySignal(t, i); if (s) out.push({ s: s, where: 'pricing', ref: 'pay:' + i, label: t(p.note) + ', ' + chf(p.amount) }); });
-  t.checklist.forEach(function (g) { g.items.forEach(function (it) { if (it.dynamic) return; var s = itemSignal(t, todo, it); if (s) out.push({ s: s, where: 'trip', ref: 'item:' + it.id, label: t(it.title) }); }); });
+  trip.payments.forEach(function (p, i) { var s = paySignal(trip, i); if (s) out.push({ s: s, where: 'pricing', ref: 'pay:' + i, label: t(p.note) + ', ' + chf(p.amount) }); });
+  trip.checklist.forEach(function (g) { g.items.forEach(function (it) { if (it.dynamic) return; var s = itemSignal(trip, todo, it); if (s) out.push({ s: s, where: 'trip', ref: 'item:' + it.id, label: t(it.title) }); }); });
   return out.sort(function (a, b) {
     var la = a.s.level === 'late', lb = b.s.level === 'late';
     if (la !== lb) return la ? -1 : 1;
