@@ -136,7 +136,23 @@ function tripId() {
   if (p && DB.trips[p]) return p;
   return DB.ids[0] || null;
 }
-function loadTripById(id) { return DB.trips[id] ? applyRules(clone(DB.trips[id])) : null; }
+/* A trip can carry its own translations in trip.i18n.fr / trip.i18n.es (same shape as the trip, only the text
+   fields that differ). The client page shows them when the visitor chose that language; anything missing
+   stays as written. The admin always works on the original English text. */
+function overlay(base, tr) {
+  if (tr == null) return base;
+  if (Array.isArray(base) && Array.isArray(tr)) return base.map(function (x, i) { return overlay(x, tr[i]); });
+  if (base && typeof base === 'object' && tr && typeof tr === 'object' && !Array.isArray(tr)) {
+    Object.keys(tr).forEach(function (k) { base[k] = overlay(base[k], tr[k]); });
+    return base;
+  }
+  return (typeof base === 'string' && typeof tr === 'string' && tr) ? tr : base;
+}
+function localizeTrip(trip) {
+  var x = window.LANG && window.LANG !== 'en' && trip.i18n && trip.i18n[window.LANG];
+  return x ? overlay(trip, clone(x)) : trip;
+}
+function loadTripById(id) { return DB.trips[id] ? localizeTrip(applyRules(clone(DB.trips[id]))) : null; }
 function loadTodoById(id) { return clone(DB.todos[id] || {}); }
 function loadTrip() { var id = tripId(); return id ? loadTripById(id) : null; }
 function loadTodo() { var id = tripId(); return id ? loadTodoById(id) : {}; }
