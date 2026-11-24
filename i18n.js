@@ -5,8 +5,12 @@
    t('English text', {n: 3}) returns the translation, or the English text when there is none. */
 (function () {
   var KEY = 'kabani_portal_lang', SUP = ['en', 'fr', 'es'];
+  /* English only for now (decision 24 Nov 2026). Set to true to bring back French and Spanish: the switch,
+     ?lang= links, saved choices and the translated wording all come back. */
+  var LANGUAGES_ON = false;
 
   function detect() {
+    if (!LANGUAGES_ON) return 'en';
     var fixed = document.documentElement.getAttribute('data-lang-fixed');
     if (fixed) return fixed;
     var m = /[?&]lang=(en|fr|es)\b/.exec(location.search);
@@ -383,7 +387,7 @@
   /* the EN / FR / ES switch */
   var NAMES = { en: 'English', fr: 'Français', es: 'Español' };
   function buildSwitch(el) {
-    if (document.documentElement.getAttribute('data-lang-fixed')) { el.hidden = true; return; }
+    if (!LANGUAGES_ON || document.documentElement.getAttribute('data-lang-fixed')) { el.hidden = true; return; }
     el.setAttribute('role', 'group'); el.setAttribute('aria-label', 'Language');
     el.innerHTML = SUP.map(function (c) {
       return '<button type="button" data-lang="' + c + '" lang="' + c + '" aria-label="' + NAMES[c] + '" aria-pressed="' + (c === LANG) + '">' + c.toUpperCase() + '</button>';
